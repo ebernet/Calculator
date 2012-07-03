@@ -36,6 +36,22 @@
     self.display.text = @"0";
 }
 
+- (IBAction)decimalPressed
+{
+    self.brainInputDisplay.text = [self.brainInputDisplay.text stringByReplacingOccurrencesOfString:@"= " withString:@""];
+    // Not already typing, then place a "0.". I think a leading 0 looks better
+    if (!self.userIsInTheMiddleOfEnteringANumber) {
+        self.display.text = @"0.";
+        self.userIsInTheMiddleOfEnteringANumber = YES;
+        return; // We are done, don't need to evaluate whether there are other decimals
+    }
+    // Make sure you only allow one decimal
+    NSRange range = [self.display.text rangeOfString:@"."];
+    if (range.location == NSNotFound) {
+        self.display.text = [self.display.text stringByAppendingString:@"."];
+    }
+}
+
 - (IBAction)digitPressed:(UIButton *)sender
 {
     NSString *digit = sender.currentTitle;
@@ -139,21 +155,6 @@
     self.brainInputDisplay.text = [self.brainInputDisplay.text stringByReplacingOccurrencesOfString:@"= " withString:@""];
     // And append one at the end
     self.brainInputDisplay.text = [self.brainInputDisplay.text stringByAppendingString:@"= "];
-}
-
-- (IBAction)decimalPressed
-{
-    // Not already typing, then place a "0.". I think a leading 0 looks better
-    if (!self.userIsInTheMiddleOfEnteringANumber) {
-        self.display.text = @"0.";
-        self.userIsInTheMiddleOfEnteringANumber = YES;
-        return; // We are done, don't need to evaluate whether there are other decimals
-    }
-    // Make sure you only allow one decimal
-    NSRange range = [self.display.text rangeOfString:@"."];
-    if (range.location == NSNotFound) {
-        self.display.text = [self.display.text stringByAppendingString:@"."];
-    }
 }
 
 - (void)viewDidUnload {
