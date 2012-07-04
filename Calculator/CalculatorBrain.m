@@ -72,7 +72,9 @@
     } else if ([@"cos" isEqualToString:operation]) {
         result = cos([self popOperand]);
     } else if ([@"sqrt" isEqualToString:operation]) {
-        result = sqrt([self popOperand]);
+        double operand = [self popOperand];
+        if (operand > 0)
+            result = sqrt(operand);
     } else if ([@"π" isEqualToString:operation]) {
         result = M_PI;
     } else if ([@"+/-" isEqualToString:operation]) {
