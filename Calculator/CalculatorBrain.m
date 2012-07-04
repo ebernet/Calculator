@@ -72,6 +72,7 @@
     } else if ([@"cos" isEqualToString:operation]) {
         result = cos([self popOperand]);
     } else if ([@"sqrt" isEqualToString:operation]) {
+        // Xomment sqrt of negatives fix
         double operand = [self popOperand];
         if (operand > 0)
             result = sqrt(operand);
