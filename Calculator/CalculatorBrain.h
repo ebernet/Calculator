@@ -13,6 +13,16 @@
 - (void)pushOperand:(double)operand;
 - (double)performOperation:(NSString *)operation;
 
+// Added in homework 1
 - (void)clearBrain; // The API for the clear button
+
+// Added in prep for homework 2
+@property (readonly) id program;
+
+// Recursive. Returns result of operation recursively. Could be an operation or a program
++ (double)runProgram:(id)program;
++ (NSString *)descriptionOfProgram:(id)program;
+
+// Added in homework 2
 
 @end
