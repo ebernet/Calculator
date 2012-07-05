@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A01BFAAC15A64E7700364220 /* backspace.png in Resources */ = {isa = PBXBuildFile; fileRef = A01BFAAB15A64E7700364220 /* backspace.png */; };
+		A01BFAAF15A6510700364220 /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = A01BFAAE15A6510700364220 /* click.wav */; };
+		A01BFAB215A657B900364220 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A01BFAB015A6578000364220 /* AudioToolbox.framework */; };
 		A0CF9F3B157D98290092B399 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3A157D98290092B399 /* UIKit.framework */; };
 		A0CF9F3D157D98290092B399 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3C157D98290092B399 /* Foundation.framework */; };
 		A0CF9F3F157D98290092B399 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3E157D98290092B399 /* CoreGraphics.framework */; };
@@ -19,6 +22,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A01BFAAB15A64E7700364220 /* backspace.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backspace.png; sourceTree = "<group>"; };
+		A01BFAAE15A6510700364220 /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
+		A01BFAB015A6578000364220 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A0CF9F36157D98290092B399 /* Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0CF9F3A157D98290092B399 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A0CF9F3C157D98290092B399 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -44,12 +50,22 @@
 				A0CF9F3B157D98290092B399 /* UIKit.framework in Frameworks */,
 				A0CF9F3D157D98290092B399 /* Foundation.framework in Frameworks */,
 				A0CF9F3F157D98290092B399 /* CoreGraphics.framework in Frameworks */,
+				A01BFAB215A657B900364220 /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A01BFAAD15A64E9300364220 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A01BFAAE15A6510700364220 /* click.wav */,
+				A01BFAAB15A64E7700364220 /* backspace.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		A0CF9F2B157D98290092B399 = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +89,7 @@
 				A0CF9F3A157D98290092B399 /* UIKit.framework */,
 				A0CF9F3C157D98290092B399 /* Foundation.framework */,
 				A0CF9F3E157D98290092B399 /* CoreGraphics.framework */,
+				A01BFAB015A6578000364220 /* AudioToolbox.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -95,6 +112,7 @@
 		A0CF9F41157D98290092B399 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				A01BFAAD15A64E9300364220 /* Resources */,
 				A0CF9F42157D98290092B399 /* Calculator-Info.plist */,
 				A0CF9F43157D98290092B399 /* InfoPlist.strings */,
 				A0CF9F46157D98290092B399 /* main.m */,
@@ -157,6 +175,8 @@
 			files = (
 				A0CF9F45157D98290092B399 /* InfoPlist.strings in Resources */,
 				A0CF9F4E157D98290092B399 /* MainStoryboard.storyboard in Resources */,
+				A01BFAAC15A64E7700364220 /* backspace.png in Resources */,
+				A01BFAAF15A6510700364220 /* click.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,6 +302,7 @@
 				A0CF9F56157D98290092B399 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

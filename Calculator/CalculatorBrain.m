@@ -72,27 +72,27 @@
         NSString *operation = topOfStack;
         if ([operation isEqualToString:@"+"]) {
             result = [self popOperandOffStack:stack] + [self popOperandOffStack:stack];
-        } else if ([@"*" isEqualToString:operation]) {
+        } else if ([@"×" isEqualToString:operation]) {
             result = [self popOperandOffStack:stack] * [self popOperandOffStack:stack];
-        } else if ([@"/" isEqualToString:operation]) {  // Order of operations IS important for divide and -
+        } else if ([@"÷" isEqualToString:operation]) {  // Order of operations IS important for divide and -
             // Protect against divide by 0
             double divisor = [self popOperandOffStack:stack];
             if (divisor != 0) result = [self popOperandOffStack:stack] / divisor;
-         } else if ([@"-" isEqualToString:operation]) {
+         } else if ([@"−" isEqualToString:operation]) {
             // Negate the 1st operand popped to achieve proper order
             result = -[self popOperandOffStack:stack] + [self popOperandOffStack:stack];
         } else if ([@"sin" isEqualToString:operation]) {
             result = sin([self popOperandOffStack:stack]);
         } else if ([@"cos" isEqualToString:operation]) {
             result = cos([self popOperandOffStack:stack]);
-        } else if ([@"sqrt" isEqualToString:operation]) {
+        } else if ([@"√" isEqualToString:operation]) {
             // Comment sqrt of negatives fix
             double operand = [self popOperandOffStack:stack];
             if (operand > 0)
                 result = sqrt(operand);
         } else if ([@"π" isEqualToString:operation]) {
             result = M_PI;
-        } else if ([@"+/-" isEqualToString:operation]) {
+        } else if ([@"±" isEqualToString:operation]) {
             result = -[self popOperandOffStack:stack];
         }
     }
