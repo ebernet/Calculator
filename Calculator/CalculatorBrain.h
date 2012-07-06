@@ -27,15 +27,6 @@
 + (NSString *)descriptionOfProgram:(id)program;
 + (NSSet *)variablesUsedInProgram:(id)program;
 
-// Utility methods to validate operations supported by brain. Brain could always be expanded to support more.
-// Like this, a calculator view can intorregate the brain to see what is supported (although using this method,
-// Reality is that the brain will just validate what is supported. Would make more sense to have brain publish the type of operations supported,
-// Like that you could ask it to give you an array of supported operations
-+ (BOOL)isOperation:(NSString *)operation;
-+ (BOOL)isSingleOpOperation:(NSString *)operation;
-+ (BOOL)isDoubleOpOperation:(NSString *)operation;
-+ (BOOL)isNoOpOperation:(NSString *)operation;
-
 // Added to allow variables to be pushed
 - (void)pushVariable:(NSString *)variable;
 

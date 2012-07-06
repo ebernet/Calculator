@@ -17,6 +17,8 @@
 // Changed operandStack to programStack. Allows for recursively having programs as operands...
 @synthesize programStack = _programStack;
 
+#pragma mark setters and getters
+
 - (NSMutableArray *)programStack
 {
     if (_programStack == nil) _programStack = [[NSMutableArray alloc] init];
@@ -28,7 +30,14 @@
     _programStack = programStack;
 }
 
-// Is the string being pushed down an operation? If not, it is a variable
+// program cannot return the actual programStack, we need to return a immutable copy of it...
+- (id)program
+{
+    return [self.programStack copy];
+}
+
+#pragma mark helper methods for checking for what is on the stack
+
 + (BOOL)isOperation:(NSString *)operation
 {
     NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"√",@"×",@"÷",@"+",@"−",@"π",@"±",@"e",@"log",nil];
@@ -39,37 +48,27 @@
 {
     NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"√",@"log",@"±",nil];
     return [operationSet containsObject:operation];
-    
 }
 
 + (BOOL)isDoubleOpOperation:(NSString *)operation
 {
     NSSet *operationSet = [[NSSet alloc] initWithObjects:@"×",@"÷",@"+",@"−",nil];
     return [operationSet containsObject:operation];
-    
 }
 
 + (BOOL)isNoOpOperation:(NSString *)operation
 {
     NSSet *operationSet = [[NSSet alloc] initWithObjects:@"π",@"e",nil];
     return [operationSet containsObject:operation];
-    
 }
 
 + (BOOL)isErrorCondition:(NSString *)topOfStack
 {
     NSSet *errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative","Insufficient Operands", nil];
     return [errorSet containsObject:topOfStack];
-    
 }
 
-// Got rid of popOperand. Does not work anymore since we changed the implementation
-
-// program cannot return the actual programStack, we need to return a immutable copy of it...
-- (id)program
-{
-    return [self.programStack copy];
-}
+#pragma mark stack manipulations
 
 // undo is the old popOperand, but don't return anything
 - (void)undo
@@ -99,6 +98,8 @@
     if (![CalculatorBrain isOperation:variable])
         [self.programStack addObject:variable];
 }
+
+#pragma mark Display brain methods
 
 // Extra credit, removes unnecessary parenthases. Recursive. Part of part 2
 + (NSString *)removeParens:(NSString *)expressionToSimplify
@@ -182,6 +183,8 @@
     return programDescription;
 }
 
+#pragma mark computational engine
+
 // used for homework 2, part 1
 // This will recursively pop numbers or operations off the stack
 + (id)popOperandOffStack:(NSMutableArray *)stack
@@ -233,8 +236,13 @@
                     result = [NSNumber numberWithFloat:sin(operandVal)];
                 } else if ([@"cos" isEqualToString:operation]) {
                     result = [NSNumber numberWithFloat:cos(operandVal)];
-                } else if ([@"±" isEqualToString:operation]) {
-                    result = [NSNumber numberWithFloat:-(operandVal)];
+                } else if ([@"log" isEqualToString:operation]) {
+                    result = [NSNumber numberWithFloat:log2(operandVal)];
+                } else if ([@"±" isEqualToString:operation]) {                  // Weird bug where you can get -0
+                    if (operandVal != 0)
+                        result = [NSNumber numberWithFloat:-(operandVal)];
+                    else
+                        result = 0;
                 } else if ([@"√" isEqualToString:operation]) {
                     if (operandVal > 0)
                         result = [NSNumber numberWithFloat:sqrt(operandVal)];
@@ -318,7 +326,8 @@
 /* Recursive version of above, basically it works just like the description and the popOperand in that it 
    analyzes all the operands and when it finds a string, that is NOT an aperation, it adds them it to a set.
    which it then passes up to be added again. Since sets will only have one copy of each item, adding
-   it again will fail.
+   it again will fail. It is questionable if this is needed because it is ambiguous if we are to display all
+   the variable in the brain, or all the variables in the current program.
 */
 + (NSSet *)variablesUsedInProgramRecursive:(NSMutableArray *)stack
 {
@@ -352,10 +361,5 @@
     // Clear everything on the stack
     [self.programStack removeAllObjects];
     self.programStack = nil; // Not really necessary, but cleaner
-}
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"stack = %@", self.programStack];
 }
 @end

@@ -85,7 +85,6 @@
         // If we have NOT started typing numbers
         self.display.text = digit;                      // First digit, just put it in the display
         self.userIsInTheMiddleOfEnteringANumber = YES;  // And set flag that we are entering numbers
-        // Extra credit homework 1 - once a digit is pressed, we make sure to remove any = that may have been put there by an operation
     }
 
 }
@@ -93,11 +92,10 @@
 - (IBAction)enterPressed
 {
     [self playButtonClick];
-    // Whatever is in the display, whether it is a new digit being entered OR the result of the previous evaluation,
-    // gets pushed on the stack.
+    // Only gets called if the user was in the middle of entering a number, so it pushes value in the display
+    // onto the stack
     [self.brain pushOperand:[self.display.text doubleValue]];
     self.userIsInTheMiddleOfEnteringANumber = NO;
-    // update the display by running the program, and update the brainInput as well
     [self updateDisplay];
 }
 
@@ -130,11 +128,8 @@
     } else {
         [self playButtonClick]; // Only play click for the variable if we did not do it via enterPressed
     }
-    
-    // Here is that push...
+    // Now push the variable
     [self.brain pushVariable:sender.currentTitle];
-    
-    // Evaluate the operation - display always reflects running the program
     [self updateDisplay];
 }
 
@@ -162,9 +157,8 @@
     } else {
         [self playButtonClick]; // Only play click for the opertion if we did not do it via enterPressed
     }
-    // Evaluate the operation - display always reflects running the program
+    // Evaluate the operation - but no longer use it to update the display.
     [[self.brain performOperation:sender.currentTitle] doubleValue];
-    
     [self updateDisplay];
 }
 
@@ -195,27 +189,23 @@
 }
 
 // Need to add a viewDidLoad to set up the sound.
-// adding sound, this is the soundfile setup
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
     // get the file path to the buttonClick
-    NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"click"
-                                                          ofType:@"wav"];
+    NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"click" ofType:@"wav"];
     // Did we find the audio file?
     if (soundPath) {
         // convert the file path to a URL
         NSURL *soundFileURL = [NSURL fileURLWithPath:soundPath];
-        
         OSStatus err = AudioServicesCreateSystemSoundID((__bridge CFURLRef)soundFileURL , &buttonClick);
-        
         if (err != kAudioServicesNoError)
             NSLog(@"Could not load %@, error code: %ld", soundFileURL, err);
     }
-    
 }
 
+// Moved all the diplay stuff here
 - (void)updateDisplay
 {
     // Evaluate the program, place the result in the display. Result may be an error condition
@@ -229,7 +219,8 @@
     // Always show the program, not its evaluation, in the brainInputDisplay
     self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
     
-    // SHow variables used in the current program
+    // Show variables used in the current program. Note, current implementation of brain returns ALL variables, even those
+    // Not in the current program, as long as they are somewhere within the program stack
     self.variableDisplay.text = @"";
     // Only if the dictionary is not nil
     if (self.testVariableValues) {
@@ -240,7 +231,6 @@
         // Remove the trailing ", "
         if (self.variableDisplay.text.length > 0) self.variableDisplay.text = [self.variableDisplay.text substringToIndex:self.variableDisplay.text.length-2];
     }
-    
 }
 
 
