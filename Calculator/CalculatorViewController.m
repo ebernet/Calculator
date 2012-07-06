@@ -57,8 +57,6 @@
 {
     // Not already typing, then place a "0.". I think a leading 0 looks better
     if (!self.userIsInTheMiddleOfEnteringANumber) {
-        // ince we have not started typing, we might have been showing an equals at the end
-        [self removeTrailingEqualsFromBrainDisplay];
         [self playButtonClick];
         self.display.text = @"0.";
         self.userIsInTheMiddleOfEnteringANumber = YES;
@@ -88,7 +86,6 @@
         self.display.text = digit;                      // First digit, just put it in the display
         self.userIsInTheMiddleOfEnteringANumber = YES;  // And set flag that we are entering numbers
         // Extra credit homework 1 - once a digit is pressed, we make sure to remove any = that may have been put there by an operation
-        [self removeTrailingEqualsFromBrainDisplay];
     }
 
 }
@@ -97,28 +94,18 @@
 {
     [self playButtonClick];
     // Whatever is in the display, whether it is a new digit being entered OR the result of the previous evaluation,
-    // gets pushed on the stack. So update the brain display. Check for just one thing, "0.", and replace with 0!
-    if ([self.display.text isEqualToString:@"0."]) self.display.text = @"0";
-    // Here is that push...
+    // gets pushed on the stack.
     [self.brain pushOperand:[self.display.text doubleValue]];
-    // New way to draw the brain is to display the descriptionOfProgram
-    self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
-    // We are certainly not enetering a number, regardless of whether we had been...
     self.userIsInTheMiddleOfEnteringANumber = NO;
-
-    // If we had put an "=" sign in the brain, we are removing it, since this was not an operation we pushed
-    // Not needed anymore, because the display is updated by descriptionOfProgram and should not have the =. We recreate it each time.
-  //  [self removeTrailingEqualsFromBrainDisplay];
+    // update the display by running the program, and update the brainInput as well
+    [self updateDisplay];
 }
 
 - (IBAction)negateNumber
 {
-    
     // If we are entering a number.... so we want to remove trailing = but also change the sign
     if (self.userIsInTheMiddleOfEnteringANumber) {
         [self playButtonClick];
-        // Remove any prior =
-        [self removeTrailingEqualsFromBrainDisplay];
         // Make sure we have not just entered a decimal (showing "0."). We don't need to negate that.
         // If we are showing real numbers, we do NOT push this on the stack of operations, sicne we have yet to push the number!
         if (![self.display.text isEqualToString:@"0."]) {
@@ -129,12 +116,8 @@
         if ([self.display.text doubleValue] != 0) { // Again, only negate it if we actually have a non-zero number
             [self playButtonClick];
             // This is a tough one. Should we push the operation down if the stack was evaluating to 0??
-            double result = [[self.brain performOperation:@"±"] doubleValue]; // We want to replace the result on the stack
-            NSString *resultString = [NSString stringWithFormat:@"%g", result];
-            self.display.text = resultString;
-            // Note, I am adding these negations to the brainInputDisplay
-        }
-        self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
+            [[self.brain performOperation:@"±"] doubleValue];        }
+        [self updateDisplay];
         
     }
 }
@@ -147,17 +130,12 @@
     } else {
         [self playButtonClick]; // Only play click for the variable if we did not do it via enterPressed
     }
-//    self.brainInputDisplay.text = [self.brainInputDisplay.text stringByAppendingFormat:@"%@ ", sender.currentTitle];
     
     // Here is that push...
     [self.brain pushVariable:sender.currentTitle];
-    self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
-    // We are certainly not enetering a number, regardless of whether we had been...
-    self.userIsInTheMiddleOfEnteringANumber = NO;
     
-    // If we had put an "=" sign in the brain, we are removing it, since this was not an operation we pushed
-//    self.brainInputDisplay.text = [self.brainInputDisplay.text stringByReplacingOccurrencesOfString:@"= " withString:@""];
-    
+    // Evaluate the operation - display always reflects running the program
+    [self updateDisplay];
 }
 
 - (IBAction)backspacePressed
@@ -184,29 +162,10 @@
     } else {
         [self playButtonClick]; // Only play click for the opertion if we did not do it via enterPressed
     }
-    // Evaluate the operation
-    double result = [[self.brain performOperation:sender.currentTitle] doubleValue];
-    // And place the result on the stack
-    self.display.text = [NSString stringWithFormat:@"%g", result];
-    self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
- //  self.brainInputDisplay.text = [self.brainInputDisplay.text stringByAppendingFormat:@"%@ ",sender.currentTitle];
- 
-    // A question could be made, is π an operation? If it is not, should we evaluate it and put the = sign?
-    // The code before is in case I want to ensure only "real" operations are checked for...
-
-    //    NSArray *arrayOfStrings = [NSArray arrayWithObjects:@"sin",@"cos",@"sqrt",nil];
-    //    NSSet *setOfStrings = [NSSet setWithArray:arrayOfStrings];
-    //    if ([setOfStrings containsObject:(NSString *)sender.currentTitle]) {
-    //    } else {
-    //        self.brainInputDisplay.text = [self.brainInputDisplay.text stringByAppendingString:@" "];
-    //    }
+    // Evaluate the operation - display always reflects running the program
+    [[self.brain performOperation:sender.currentTitle] doubleValue];
     
-
-    // Remove any prior =
-//    self.brainInputDisplay.text = [self.brainInputDisplay.text stringByReplacingOccurrencesOfString:@"= " withString:@""];
-    self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
-    // And append one at the end
-    self.brainInputDisplay.text = [self.brainInputDisplay.text stringByAppendingString:@" ="];
+    [self updateDisplay];
 }
 
 - (IBAction)testPressed:(UIButton *)sender
@@ -259,6 +218,7 @@
 
 - (void)updateDisplay
 {
+    // Evaluate the program, place the result in the display. Result may be an error condition
     id resultOfProgram = [CalculatorBrain runProgram:[self.brain program] usingVariableValues:self.testVariableValues];
     if ([resultOfProgram isKindOfClass:[NSNumber class]]) {
         self.display.text = [NSString stringWithFormat:@"%g",[resultOfProgram doubleValue]];
@@ -266,31 +226,23 @@
         self.display.text = resultOfProgram;   // Can show error conditions
     }
     
-    // Always show the program, not its evaluation
+    // Always show the program, not its evaluation, in the brainInputDisplay
     self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
     
+    // SHow variables used in the current program
     self.variableDisplay.text = @"";
-    NSArray *variablesInUse = [[CalculatorBrain variablesUsedInProgram:self.brain.program] allObjects];
-    for (int i = 0; i < variablesInUse.count; i++) {
-        self.variableDisplay.text = [self.variableDisplay.text stringByAppendingFormat:@"%@ = %g, ",[variablesInUse objectAtIndex:i],[[self.testVariableValues valueForKey:[variablesInUse objectAtIndex:i]] doubleValue]];
+    // Only if the dictionary is not nil
+    if (self.testVariableValues) {
+        NSArray *variablesInUse = [[CalculatorBrain variablesUsedInProgram:self.brain.program] allObjects];
+        for (int i = 0; i < variablesInUse.count; i++) {
+            self.variableDisplay.text = [self.variableDisplay.text stringByAppendingFormat:@"%@ = %g, ",[variablesInUse objectAtIndex:i],[[self.testVariableValues valueForKey:[variablesInUse objectAtIndex:i]] doubleValue]];
+        }
+        // Remove the trailing ", "
+        if (self.variableDisplay.text.length > 0) self.variableDisplay.text = [self.variableDisplay.text substringToIndex:self.variableDisplay.text.length-2];
     }
-    if (self.variableDisplay.text.length > 0) self.variableDisplay.text = [self.variableDisplay.text substringToIndex:self.variableDisplay.text.length-2];
-    
     
 }
 
-- (void)removeTrailingEqualsFromBrainDisplay
-{
-    // Remove the equals sign, called whenevera digit or variable is pressed
-    self.brainInputDisplay.text = [self.brainInputDisplay.text stringByReplacingOccurrencesOfString:@" =" withString:@""];
-}
-
-- (void)updateBrainDisplay
-{
-    // New way to draw the brain is to display the descriptionOfProgram
-    self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
-
-}
 
 - (void)viewDidUnload {
     [self setBrainInputDisplay:nil];

@@ -56,6 +56,13 @@
     
 }
 
++ (BOOL)isErrorCondition:(NSString *)topOfStack
+{
+    NSSet *errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative","Insufficient Operands", nil];
+    return [errorSet containsObject:topOfStack];
+    
+}
+
 // Got rid of popOperand. Does not work anymore since we changed the implementation
 
 // program cannot return the actual programStack, we need to return a immutable copy of it...
@@ -177,9 +184,9 @@
 
 // used for homework 2, part 1
 // This will recursively pop numbers or operations off the stack
-+ (double)popOperandOffStack:(NSMutableArray *)stack
++ (id)popOperandOffStack:(NSMutableArray *)stack
 {
-    double result = 0;
+    id result;
     
     id topOfStack = [stack lastObject];         // We want to use introspection on the top of the stack
     if (topOfStack) [stack removeLastObject];   // and if there is a topOfStack, we remove it (remember, we wanted to consume the array
@@ -187,36 +194,67 @@
     
     // If the last item we are looking at is a number, return it as a double
     if ([topOfStack isKindOfClass:[NSNumber class]]) {
-        result = [topOfStack doubleValue];
-    // and if the last item is a string, it is probably an operation (although it may be a variable, as we will find in the homework
+        result = topOfStack;
+    // and if the last item is a string, it could be an operation, variable, or error condition
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         NSString *operation = topOfStack;
-        if ([operation isEqualToString:@"+"]) {
-            result = [self popOperandOffStack:stack] + [self popOperandOffStack:stack];
-        } else if ([@"×" isEqualToString:operation]) {
-            result = [self popOperandOffStack:stack] * [self popOperandOffStack:stack];
-        } else if ([@"÷" isEqualToString:operation]) {  // Order of operations IS important for divide and -
-            // Protect against divide by 0
-            double divisor = [self popOperandOffStack:stack];
-            if (divisor != 0) result = [self popOperandOffStack:stack] / divisor;
-         } else if ([@"−" isEqualToString:operation]) {
-            // Negate the 1st operand popped to achieve proper order
-            result = -[self popOperandOffStack:stack] + [self popOperandOffStack:stack];
-        } else if ([@"sin" isEqualToString:operation]) {
-            result = sin([self popOperandOffStack:stack]);
-        } else if ([@"cos" isEqualToString:operation]) {
-            result = cos([self popOperandOffStack:stack]);
-        } else if ([@"√" isEqualToString:operation]) {
-            // Comment sqrt of negatives fix
-            double operand = [self popOperandOffStack:stack];
-            if (operand > 0)
-                result = sqrt(operand);
-        } else if ([@"π" isEqualToString:operation]) {
-            result = M_PI;
-        } else if ([@"±" isEqualToString:operation]) {
-            result = [self popOperandOffStack:stack];
-            // 0 cannot be negated. Is this a bug in ObjC?
-            if (result != 0) result = -result;
+        
+        if ([self isDoubleOpOperation:operation]) {
+            // Get the two operations off the top of the stack
+            id secondOperand = [self popOperandOffStack:stack];
+            id firstOperand = [self popOperandOffStack:stack];
+            
+            if (([secondOperand isKindOfClass:[NSNumber class]]) && ([firstOperand isKindOfClass:[NSNumber class]])) {
+                double firstOperandVal = [firstOperand doubleValue];
+                double secondOperandVal = [secondOperand doubleValue];
+                if ([operation isEqualToString:@"+"]) {
+                    result = [NSNumber numberWithFloat:firstOperandVal + secondOperandVal];
+                } else if ([@"×" isEqualToString:operation]) {
+                    result = [NSNumber numberWithFloat:firstOperandVal * secondOperandVal];
+                } else if ([@"÷" isEqualToString:operation]) {
+                    if (secondOperandVal != 0)
+                        result = [NSNumber numberWithFloat:firstOperandVal / secondOperandVal];
+                    else
+                        result = @"Divide By Zero";
+                } else if ([@"−" isEqualToString:operation]) {
+                    result = [NSNumber numberWithFloat:firstOperandVal - secondOperandVal];
+                }
+            } else {
+                result = @"Insufficient Operands";
+            }
+            
+        } else if ([self isSingleOpOperation:operation]) {
+            id operand = [self popOperandOffStack:stack];
+
+            if ([operand isKindOfClass:[NSNumber class]]) {
+                double operandVal = [operand doubleValue];
+            
+                if ([@"sin" isEqualToString:operation]) {
+                    result = [NSNumber numberWithFloat:sin(operandVal)];
+                } else if ([@"cos" isEqualToString:operation]) {
+                    result = [NSNumber numberWithFloat:cos(operandVal)];
+                } else if ([@"±" isEqualToString:operation]) {
+                    result = [NSNumber numberWithFloat:-(operandVal)];
+                } else if ([@"√" isEqualToString:operation]) {
+                    if (operandVal > 0)
+                        result = [NSNumber numberWithFloat:sqrt(operandVal)];
+                    else
+                        result = @"sqrt of negative";
+                }
+            } else {
+                result = @"Insufficient Operands";
+            }
+        } else if ([self isNoOpOperation:operation]) {
+            if ([@"π" isEqualToString:operation]) {
+                result = [NSNumber numberWithFloat:M_PI];
+            } else if  ([@"e" isEqualToString:operation]) {
+                result = [NSNumber numberWithFloat:M_E];
+            }
+        } else if (![self isErrorCondition:operation]) { // must be a variable, and it has not been replaced...
+            result = [NSNumber numberWithInt:0];
+        } else {
+            // Must be an error
+            result = topOfStack;
         }
     }
     return result;
@@ -258,7 +296,7 @@
 
         // If we have anything sitting on the stack, return it, otherwise we have cleared the brain and we should return 0
         if (stack.count > 0) {
-            return [NSNumber numberWithDouble:[self popOperandOffStack:stack]];  // Need to cast the number probably do more to support ERROR CONDITIONS!!!
+            return [self popOperandOffStack:stack];
         } else {
             return 0;
         }
