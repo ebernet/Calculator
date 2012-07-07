@@ -305,55 +305,35 @@
         // If we have anything sitting on the stack, return it, otherwise we have cleared the brain and we should return 0
         if (stack.count > 0) {
             return [self popOperandOffStack:stack];
-        } else {
-            return 0;
         }
     }
-    return 0;
+    return nil;
 }
 
-// I decided to do this recursively. To handle that, I need to actually send an NSMutableArray down
-// I can't see how to do it with an (id), so since the class calls for that
-// I am just passing it to something I can recurse
+// If I find a string that is not an operation, I add it to the set.
+// I don't need to check for duplicates because sets will not add a duplicate automatically,
+// solving a problem you would need to solve with an array (checking the array for duplicates)
 + (NSSet *)variablesUsedInProgram:(id)program
 {
-    id result = nil;
-    result = [self variablesUsedInProgramRecursive:[program mutableCopy]];
-    if (![result count]) result = nil;
-    return result;
-}
-
-/* Recursive version of above, basically it works just like the description and the popOperand in that it 
-   analyzes all the operands and when it finds a string, that is NOT an aperation, it adds them it to a set.
-   which it then passes up to be added again. Since sets will only have one copy of each item, adding
-   it again will fail. It is questionable if this is needed because it is ambiguous if we are to display all
-   the variable in the brain, or all the variables in the current program.
-*/
-+ (NSSet *)variablesUsedInProgramRecursive:(NSMutableArray *)stack
-{
-    NSSet *result = [NSSet setWithObjects:nil];
-    
-    id topOfStack = [stack lastObject];         // Get top element on stack
-    if (topOfStack) [stack removeLastObject];   // and if there is a topOfStack, we remove it (remember, we wanted to consume the array
-    
-    // Note that we can still run the code below, because it will only be called if there was an element (we can send methods to nil in Obj-C)
-    // If tiopOfStack is an array, we want to see if it has variables, so call recursively...
-    if ([topOfStack isKindOfClass:[NSArray class]]) {
-        // concatenate the sets from lower down to this set
-        result = [result setByAddingObjectsFromSet:[self variablesUsedInProgramRecursive:stack]];
+    NSSet *result = [[NSSet alloc] init ];
+    if ([program isKindOfClass:[NSArray class]]) {
+        for (id operationOrOperand in program) {
+            if ([operationOrOperand isKindOfClass:[NSString class]]) {
+                if (![CalculatorBrain isOperation:(NSString *) operationOrOperand]) {
+                    // No, it is not an operation, so it has to be a variable. Add it to the set
+                    result = [result setByAddingObject:(NSString *) operationOrOperand]; 
+                }
+            }
+        }
     }
-    // No, it is a string. Make sure it is not an operation
-    else if ([topOfStack isKindOfClass:[NSString class]])
-    {
-        if (![CalculatorBrain isOperation:topOfStack])
-            // No, it is not an operation, so it has to be a variable. Add it to the set
-            result = [result setByAddingObject:topOfStack]; 
-            if ([stack count]) { // If there are any more elements left in the array, send them to have the same analysis
-                result = [result setByAddingObjectsFromSet:[self variablesUsedInProgramRecursive:stack]];
-            }                
-    }
-    // I don't think nil is returned, but rather an empty set, so I can handle this in the class required method
-    return result;
+    if ([result count])
+        return result;
+    else
+        return nil;
+    
+    // Could have also done this with an NSMutableSet and returned [result copy], and instead of recreating the set each time
+    // from an existing set, appending to the set. Still need to check for empty set and return nil. Found that I cannot
+    // use an NSSet unless I alloc/init it, and if I do, it is not nil...
 }
 
 - (void)clearBrain

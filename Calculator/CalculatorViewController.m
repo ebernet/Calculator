@@ -212,12 +212,16 @@
     id resultOfProgram = [CalculatorBrain runProgram:[self.brain program] usingVariableValues:self.testVariableValues];
     if ([resultOfProgram isKindOfClass:[NSNumber class]]) {
         self.display.text = [NSString stringWithFormat:@"%g",[resultOfProgram doubleValue]];
-    } else {
+    } else if ([resultOfProgram isKindOfClass:[NSString class]]) {
         self.display.text = resultOfProgram;   // Can show error conditions
+    } else { // if the you undo the brain, nil will be returned, so put up a 0
+        self.display.text = @"0";
     }
     
-    // Always show the program, not its evaluation, in the brainInputDisplay
-    self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
+    // Always show the program, not its evaluation, in the brainInputDisplay.
+    self.brainInputDisplay.text = @"";
+    if ([self.brain program])
+        self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
     
     // Show variables used in the current program. Note, current implementation of brain returns ALL variables, even those
     // Not in the current program, as long as they are somewhere within the program stack
