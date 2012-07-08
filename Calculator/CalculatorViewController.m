@@ -48,9 +48,10 @@
 {
     [self playButtonClick];
     [self.brain clearBrain];                        // Clear the program stack
+    //self.testVariableValues = nil;                // The assignment is ambiguous as to whether clear should clear the variables, or just the brain
+                                                    // I am assuming no. Let test 3 do that...
     self.userIsInTheMiddleOfEnteringANumber = NO;   // and reset all the related views
-    self.brainInputDisplay.text = @"";
-    self.display.text = @"0";
+    [self updateDisplay];
 }
 
 - (IBAction)decimalPressed
