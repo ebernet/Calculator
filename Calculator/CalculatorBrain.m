@@ -140,8 +140,8 @@
         if ([self isDoubleOpOperation:operation]) {
             NSString *secondOperand = [self descriptionOfTopOfStack:stack];
             NSString *firstOperand = [self descriptionOfTopOfStack:stack];
-            // Note we need parentheses for + and -, but not for times and divide since they take precedence
-            if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"−"]) {
+            // Note we need parentheses for + and ×, but not for divide and subtract since they take precedence
+            if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"×"]) {
                 [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
             } else {
                 [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation, secondOperand];
