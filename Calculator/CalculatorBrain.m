@@ -101,16 +101,16 @@
 
 #pragma mark Display brain methods
 
-// Extra credit, removes unnecessary parenthases. Recursive. Part of part 2
+// Extra credit, removes unnecessary parenthases. Part of part 2
 + (NSString *)removeParens:(NSString *)expressionToSimplify
 {
     // for all we know, no simplification is needed
     NSString *returnString = [expressionToSimplify copy];
-    // if our expression is inside paretheses, then call myself with what is between them
+    // if our expression is inside paretheses, remove them
     if ([expressionToSimplify hasPrefix:@"("] && [expressionToSimplify hasSuffix:@")"]) {
         returnString = [expressionToSimplify substringWithRange:NSMakeRange(1,(expressionToSimplify.length -2))];
     }
-    // okay, we are now looking at what gets poped of the stack after removing parens recursively, assuming there were any left
+    // If after removing parentheses from begining and end, if there are mismatched parentheses inside, return original expression
     NSRange openParens = [returnString rangeOfString:@"("];
     NSRange closeParens = [returnString rangeOfString:@")"];
     
@@ -140,9 +140,19 @@
         if ([self isDoubleOpOperation:operation]) {
             NSString *secondOperand = [self descriptionOfTopOfStack:stack];
             NSString *firstOperand = [self descriptionOfTopOfStack:stack];
-            // Note we need parentheses for + and ×, but not for divide and subtract since they take precedence
-            if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"×"]) {
-                [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
+
+            // for plus and minus, we want to leave seond operand alone, but remove parens from 1st operand
+            
+            if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"−"]) {
+                [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, secondOperand];
+ 
+            // for divide we want to remove parentheses from second operand
+
+            } else if ([operation isEqualToString:@"÷"]) {
+                [programFragment appendFormat:@"%@ %@ (%@)", firstOperand, topOfStack, [self removeParens:secondOperand]];
+            
+            // for times, we need not add nor remove parentheses from either side (they should be simplified already, I hope...
+                
             } else {
                 [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation, secondOperand];
             }
@@ -244,10 +254,10 @@
                     else
                         result = 0;
                 } else if ([@"√" isEqualToString:operation]) {
-                    if (operandVal > 0)
-                        result = [NSNumber numberWithFloat:sqrt(operandVal)];
-                    else
+                    if (operandVal < 0)
                         result = @"sqrt of negative";
+                    else
+                        result = [NSNumber numberWithFloat:sqrt(operandVal)];
                 }
             } else {
                 result = @"Insufficient Operands";
