@@ -105,9 +105,11 @@
     // If we are entering a number.... so we want to remove trailing = but also change the sign
     if (self.userIsInTheMiddleOfEnteringANumber) {
         [self playButtonClick];
-        // Make sure we have not just entered a decimal (showing "0."). We don't need to negate that.
-        // If we are showing real numbers, we do NOT push this on the stack of operations, sicne we have yet to push the number!
-        if (![self.display.text isEqualToString:@"0."]) {
+        // If we are showing real numbers, we do NOT push this on the stack of operations, since we have yet to push the number!
+        // Do not allow negation of "0". You can now negate if you started typing a decimal.
+        if ([self.display.text isEqualToString:@"0."]) {
+            self.display.text = @"-0.";
+        } else if (![self.display.text isEqualToString:@"0"]) {
             self.display.text = [NSString stringWithFormat:@"%g",-[self.display.text doubleValue]];
         }
     } else {
@@ -143,7 +145,7 @@
             // This will take care of multiple numbers, OR of "0."
             self.display.text = [self.display.text substringToIndex:(self.display.text.length - 1)];
         }
-        if ((self.display.text.length == 0) || [self.display.text isEqualToString:@"0"]) { // The second check is if they deleted the decimal
+        if ((self.display.text.length == 0) || [self.display.text isEqualToString:@"0"] || [self.display.text isEqualToString:@"-"] || [self.display.text isEqualToString:@"-0"]) { // The second check is if they deleted the decimal
             self.display.text = @"0";
             self.userIsInTheMiddleOfEnteringANumber = NO;
         }
