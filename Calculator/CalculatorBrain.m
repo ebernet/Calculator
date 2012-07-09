@@ -137,7 +137,7 @@
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         NSString *operation = topOfStack;
         // Double operand operations must be in the correct order, and depending on type do and do not have parens
-        if ([self isDoubleOpOperation:operation]) {
+        if ([[self class] isDoubleOpOperation:operation]) {
             NSString *secondOperand = [self descriptionOfTopOfStack:stack];
             NSString *firstOperand = [self descriptionOfTopOfStack:stack];
 
@@ -156,10 +156,10 @@
             } else {
                 [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation, secondOperand];
             }
-        } else if ([self isSingleOpOperation:operation]) {
+        } else if ([[self class] isSingleOpOperation:operation]) {
             // Single operation operands always have parens around them
             [programFragment appendFormat:@"%@(%@)", operation, [self removeParens:[self descriptionOfTopOfStack:stack]]];
-        } else if ([ self isNoOpOperation:operation]) {
+        } else if ([[self class] isNoOpOperation:operation]) {
             // no ops, constants, like π, e, etc.
             [programFragment appendFormat:@"%@", operation];
         } else {
@@ -212,7 +212,7 @@
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         NSString *operation = topOfStack;
         
-        if ([self isDoubleOpOperation:operation]) {
+        if ([[self class] isDoubleOpOperation:operation]) {
             // Get the two operations off the top of the stack
             id secondOperand = [self popOperandOffStack:stack];
             id firstOperand = [self popOperandOffStack:stack];
@@ -236,7 +236,7 @@
                 result = @"Insufficient Operands";
             }
             
-        } else if ([self isSingleOpOperation:operation]) {
+        } else if ([[self class] isSingleOpOperation:operation]) {
             id operand = [self popOperandOffStack:stack];
 
             if ([operand isKindOfClass:[NSNumber class]]) {
@@ -262,13 +262,13 @@
             } else {
                 result = @"Insufficient Operands";
             }
-        } else if ([self isNoOpOperation:operation]) {
+        } else if ([[self class] isNoOpOperation:operation]) {
             if ([@"π" isEqualToString:operation]) {
                 result = [NSNumber numberWithFloat:M_PI];
             } else if  ([@"e" isEqualToString:operation]) {
                 result = [NSNumber numberWithFloat:M_E];
             }
-        } else if (![self isErrorCondition:operation]) { // must be a variable, and it has not been replaced...
+        } else if (![[self class] isErrorCondition:operation]) { // must be a variable, and it has not been replaced...
             result = [NSNumber numberWithInt:0];
         } else {
             // Must be an error
@@ -301,7 +301,7 @@
         for ( int i = 0;i < stack.count; i++) {
             id obj = [stack objectAtIndex:i]; 
             
-            if ([obj isKindOfClass:[NSString class]] && ![self isOperation:obj]) {
+            if ([obj isKindOfClass:[NSString class]] && ![[self class] isOperation:obj]) {
                 id value = [variableValues objectForKey:obj];         
                 // If value is not an instance of NSNumber, set it to zero
                 if (![value isKindOfClass:[NSNumber class]]) {
