@@ -89,13 +89,13 @@
     [self.programStack addObject:operation];
     // And then run the new program. It will have to see if something is an operation (in which case, evaluate it); or
     // another program, in which case, runProgram on it...
-    return [CalculatorBrain runProgram:self.program];
+    return [[self class] runProgram:self.program];
 }
 
 // And now in homework 2, pushVariable is similar to pushOperand, but put a string (the variable name) on the stack... We check to see if it is indeed not an operation
 - (void)pushVariable:(NSString *)variable
 {
-    if (![CalculatorBrain isOperation:variable])
+    if (![[self class] isOperation:variable])
         [self.programStack addObject:variable];
 }
 
@@ -329,7 +329,7 @@
     if ([program isKindOfClass:[NSArray class]]) {
         for (id operationOrOperand in program) {
             if ([operationOrOperand isKindOfClass:[NSString class]]) {
-                if (![CalculatorBrain isOperation:(NSString *) operationOrOperand]) {
+                if (![[self class] isOperation:(NSString *) operationOrOperand]) {
                     // No, it is not an operation, so it has to be a variable. Add it to the set
                     result = [result setByAddingObject:(NSString *) operationOrOperand]; 
                 }
