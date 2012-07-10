@@ -114,17 +114,41 @@
     NSRange openParens = [returnString rangeOfString:@"("];
     NSRange closeParens = [returnString rangeOfString:@")"];
     
-    if (openParens.location <= closeParens.location)
-        return returnString; // If the open one is before the closed one
-    else
-        return expressionToSimplify;
+    if ((openParens.location != NSNotFound) && (closeParens.location != NSNotFound)) {
+        if (openParens.location <= closeParens.location)
+            return returnString; // If the open one is before the closed one
+        else
+            return expressionToSimplify;
+
+    } else {
+        return returnString;
+    }
 }
 
+
++ (NSUInteger)operationPrecedence:(NSString *)operation
+{
+    NSArray *operations = [NSArray arrayWithObjects:@"÷",@"−" ,@"×",@"+",  nil];
+    return [operations indexOfObject:operation]+1;
+}
+
+// Find the precedence of the 1st operation in the given string
++ (NSUInteger)nextOpPrecedence:(NSString *)nextOp
+{
+    NSCharacterSet *doubleOpOps = [NSCharacterSet characterSetWithCharactersInString:@"÷−×+"];
+    // find 1t of any of these 4 operations, and get its location
+    NSRange firstFoundOp = [nextOp rangeOfCharacterFromSet:doubleOpOps];
+    if (firstFoundOp.location != NSNotFound) {
+        return [[self class] operationPrecedence:[nextOp substringWithRange:NSMakeRange (firstFoundOp.location,1)]];
+    } else {
+        return 0;
+    }
+}
 + (BOOL)requiresParens:(NSString *)expression
 {
     NSRange times = [expression rangeOfString:@"×"];
     NSRange add = [expression rangeOfString:@"+"];
-    return ((times.location > 0) || (add.location > 0));
+    return ((times.location != NSNotFound) || (add.location != NSNotFound));
 }
 
 // Homework 2, part 2 - use this to do infox and put correct parens, above to clean up parens
@@ -148,29 +172,15 @@
             NSString *secondOperand = [self descriptionOfTopOfStack:stack];
             NSString *firstOperand = [self descriptionOfTopOfStack:stack];
 
-//            if ([operation isEqualToString:@"−"] || [operation isEqualToString:@"÷"]) {
-            // See which side needs parens
-                if ([self requiresParens:firstOperand] && [self requiresParens:secondOperand]) {
-                    [programFragment appendFormat:@"(%@ %@ %@)", firstOperand, operation, secondOperand];
-                } else if ([self requiresParens:firstOperand]) {
-                    [programFragment appendFormat:@"(%@ %@ %@)", firstOperand, operation, [self removeParens:secondOperand]];
-                } else if ([self requiresParens:secondOperand]) {
-                    [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, secondOperand];
-                } else {
-                    [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
-                }
-//            } else {
-//                if ([self requiresParens:firstOperand] && [self requiresParens:secondOperand]) {
-//                    [programFragment appendFormat:@"(%@) %@ (%@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
-//                } else if ([self requiresParens:firstOperand]) {
-//                    [programFragment appendFormat:@"(%@) %@ %@", [self removeParens:firstOperand], operation, secondOperand];
-//                } else if ([self requiresParens:secondOperand]) {
-//                    [programFragment appendFormat:@"%@ %@ (%@)", firstOperand, operation, [self removeParens:secondOperand]];
-//                } else {
-//                    [programFragment appendFormat:@"(%@ %@ %@)", firstOperand, operation, secondOperand];
-//                }
-//            }
+            // There is still one expression I know of I am not fully reducing: π * (r * r) could be π * r * r
+            if ([[self class] operationPrecedence:operation] <= [[self class] nextOpPrecedence:secondOperand]) {
+                [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  secondOperand];
+            } else {
+                [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
+            }
             
+            
+
         } else if ([[self class] isSingleOpOperation:operation]) {
             // Single operation operands always have parens around them
             [programFragment appendFormat:@"%@(%@)", operation, [self removeParens:[self descriptionOfTopOfStack:stack]]];
