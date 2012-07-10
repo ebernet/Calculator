@@ -168,12 +168,12 @@
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         NSString *operation = topOfStack;
         // Double operand operations must be in the correct order, and depending on type do and do not have parens
-        if ([[self class] isDoubleOpOperation:operation]) {
+        if ([self isDoubleOpOperation:operation]) {
             NSString *secondOperand = [self descriptionOfTopOfStack:stack];
             NSString *firstOperand = [self descriptionOfTopOfStack:stack];
 
             // There is still one expression I know of I am not fully reducing: π * (r * r) could be π * r * r
-            if ([[self class] operationPrecedence:operation] <= [[self class] nextOpPrecedence:secondOperand]) {
+            if ([self operationPrecedence:operation] <= [self nextOpPrecedence:secondOperand]) {
                 [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  secondOperand];
             } else {
                 [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
@@ -181,13 +181,13 @@
             
             
 
-        } else if ([[self class] isSingleOpOperation:operation]) {
+        } else if ([self isSingleOpOperation:operation]) {
             // Single operation operands always have parens around them
             [programFragment appendFormat:@"%@(%@)", operation, [self removeParens:[self descriptionOfTopOfStack:stack]]];
-        } else if ([[self class] isNoOpOperation:operation]) {
+        } else if ([self isNoOpOperation:operation]) {
             // no ops, constants, like π, e, etc.
             [programFragment appendFormat:@"%@", operation];
-        } else if ([[self class] isErrorCondition:operation]) {
+        } else if ([self isErrorCondition:operation]) {
             // errors
             [programFragment appendFormat:@"%@", [self removeParens:[self descriptionOfTopOfStack:stack]]];
         } else {
@@ -240,7 +240,7 @@
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         NSString *operation = topOfStack;
         
-        if ([[self class] isDoubleOpOperation:operation]) {
+        if ([self isDoubleOpOperation:operation]) {
             // Get the two operations off the top of the stack
             id secondOperand = [self popOperandOffStack:stack];
             id firstOperand = [self popOperandOffStack:stack];
@@ -262,11 +262,11 @@
                 }
 /* should I return the old error, or the insufficient operand? */
             } else if ([secondOperand isKindOfClass:[NSString class]]) {
-                if ([[self class] isErrorCondition:secondOperand]) {
+                if ([self isErrorCondition:secondOperand]) {
                     result = secondOperand;
                 }
             } else if ([firstOperand isKindOfClass:[NSString class]]) {
-                if ([[self class] isErrorCondition:firstOperand]) {
+                if ([self isErrorCondition:firstOperand]) {
                     result = firstOperand;
                 }
 /* I think either can be argued to be correct  */            
@@ -274,7 +274,7 @@
             } else {
                 result = @"Insufficient Operands";
             }
-        } else if ([[self class] isSingleOpOperation:operation]) {
+        } else if ([self isSingleOpOperation:operation]) {
             id operand = [self popOperandOffStack:stack];
 
             if ([operand isKindOfClass:[NSNumber class]]) {
@@ -300,13 +300,13 @@
             } else {
                 result = @"Insufficient Operands";
             }
-        } else if ([[self class] isNoOpOperation:operation]) {
+        } else if ([self isNoOpOperation:operation]) {
             if ([@"π" isEqualToString:operation]) {
                 result = [NSNumber numberWithFloat:M_PI];
             } else if  ([@"e" isEqualToString:operation]) {
                 result = [NSNumber numberWithFloat:M_E];
             }
-        } else if (![[self class] isErrorCondition:operation]) { // must be a variable, and it has not been replaced...
+        } else if (![self isErrorCondition:operation]) { // must be a variable, and it has not been replaced...
             result = [NSNumber numberWithInt:0];
         } else {
             // Must be an error
@@ -341,7 +341,7 @@
                 for ( int i = 0;i < stack.count; i++) {
                     id obj = [stack objectAtIndex:i]; 
                     
-                    if ([obj isKindOfClass:[NSString class]] && ![[self class] isOperation:obj]) {
+                    if ([obj isKindOfClass:[NSString class]] && ![self isOperation:obj]) {
                         id value = [variableValues objectForKey:obj];         
                         // If value is not an instance of NSNumber, set it to zero
                         if (![value isKindOfClass:[NSNumber class]]) {
@@ -370,7 +370,7 @@
     if ([program isKindOfClass:[NSArray class]]) {
         for (id operationOrOperand in program) {
             if ([operationOrOperand isKindOfClass:[NSString class]]) {
-                if (![[self class] isOperation:(NSString *) operationOrOperand]) {
+                if (![self isOperation:(NSString *) operationOrOperand]) {
                     // No, it is not an operation, so it has to be a variable. Add it to the set
                     result = [result setByAddingObject:(NSString *) operationOrOperand]; 
                 }
