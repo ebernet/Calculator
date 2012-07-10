@@ -64,7 +64,7 @@
 
 + (BOOL)isErrorCondition:(NSString *)topOfStack
 {
-    NSSet *errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative","Insufficient Operands", nil];
+    NSSet *errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative",@"Insufficient Operands", nil];
     return [errorSet containsObject:topOfStack];
 }
 
@@ -120,6 +120,13 @@
         return expressionToSimplify;
 }
 
++ (BOOL)requiresParens:(NSString *)expression
+{
+    NSRange times = [expression rangeOfString:@"×"];
+    NSRange add = [expression rangeOfString:@"+"];
+    return ((times.location > 0) || (add.location > 0));
+}
+
 // Homework 2, part 2 - use this to do infox and put correct parens, above to clean up parens
 // Similar to popOperandOffStack Note this is recursive, so we consume the stack
 + (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack {
@@ -141,29 +148,40 @@
             NSString *secondOperand = [self descriptionOfTopOfStack:stack];
             NSString *firstOperand = [self descriptionOfTopOfStack:stack];
 
-            // for plus and minus, we want to leave seond operand alone, but remove parens from 1st operand
+//            if ([operation isEqualToString:@"−"] || [operation isEqualToString:@"÷"]) {
+            // See which side needs parens
+                if ([self requiresParens:firstOperand] && [self requiresParens:secondOperand]) {
+                    [programFragment appendFormat:@"(%@ %@ %@)", firstOperand, operation, secondOperand];
+                } else if ([self requiresParens:firstOperand]) {
+                    [programFragment appendFormat:@"(%@ %@ %@)", firstOperand, operation, [self removeParens:secondOperand]];
+                } else if ([self requiresParens:secondOperand]) {
+                    [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, secondOperand];
+                } else {
+                    [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
+                }
+//            } else {
+//                if ([self requiresParens:firstOperand] && [self requiresParens:secondOperand]) {
+//                    [programFragment appendFormat:@"(%@) %@ (%@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
+//                } else if ([self requiresParens:firstOperand]) {
+//                    [programFragment appendFormat:@"(%@) %@ %@", [self removeParens:firstOperand], operation, secondOperand];
+//                } else if ([self requiresParens:secondOperand]) {
+//                    [programFragment appendFormat:@"%@ %@ (%@)", firstOperand, operation, [self removeParens:secondOperand]];
+//                } else {
+//                    [programFragment appendFormat:@"(%@ %@ %@)", firstOperand, operation, secondOperand];
+//                }
+//            }
             
-            if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"−"]) {
-                [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, secondOperand];
- 
-            // for divide we want to remove parentheses from second operand
-
-            } else if ([operation isEqualToString:@"÷"]) {
-                [programFragment appendFormat:@"%@ %@ (%@)", firstOperand, topOfStack, [self removeParens:secondOperand]];
-            
-            // for times, we need not add nor remove parentheses from either side (they should be simplified already, I hope...
-                
-            } else {
-                [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation, secondOperand];
-            }
         } else if ([[self class] isSingleOpOperation:operation]) {
             // Single operation operands always have parens around them
             [programFragment appendFormat:@"%@(%@)", operation, [self removeParens:[self descriptionOfTopOfStack:stack]]];
         } else if ([[self class] isNoOpOperation:operation]) {
             // no ops, constants, like π, e, etc.
             [programFragment appendFormat:@"%@", operation];
+        } else if ([[self class] isErrorCondition:operation]) {
+            // errors
+            [programFragment appendFormat:@"%@", [self removeParens:[self descriptionOfTopOfStack:stack]]];
         } else {
-            // If all else fails, it is a variable
+            // If all else fails, it is a variable, just returun it
             [programFragment appendFormat:@"%@", operation];
         }
     }
@@ -177,20 +195,20 @@
 + (NSString *)descriptionOfProgram:(id)program
 {
     NSMutableArray *stack;
-    NSString *programDescription =  @"";
+    NSMutableArray *equations = [[NSMutableArray alloc] init];
     
     // If it is an array, then it is it's own little program, and will be separated by a comma. Call it recursively
     if ([program isKindOfClass:[NSArray class]]) {
         stack = [program mutableCopy];
     }
-    // WHile there is a program left, append the next operation
-    while ([stack count]) {
-        programDescription = [programDescription stringByAppendingString:[self removeParens:[self descriptionOfTopOfStack:stack]]];
-        if ([stack count]) { // Not few enough elements for all the operations to be executed, so insert a ","
-            programDescription = [programDescription stringByAppendingString:@", "];
-        }
+    // While there is a program left, create an array, so as I can join with comma!
+    while ([stack count] > 0) {
+        [equations addObject:[self removeParens:[self descriptionOfTopOfStack:stack]]];
     }
-    return programDescription;
+
+    // New way to do it! Use the AWESOME componentsJoinedByString
+    return [equations componentsJoinedByString:@","];      
+
 }
 
 #pragma mark computational engine
@@ -232,10 +250,20 @@
                 } else if ([@"−" isEqualToString:operation]) {
                     result = [NSNumber numberWithFloat:firstOperandVal - secondOperandVal];
                 }
+/* should I return the old error, or the insufficient operand? */
+            } else if ([secondOperand isKindOfClass:[NSString class]]) {
+                if ([[self class] isErrorCondition:secondOperand]) {
+                    result = secondOperand;
+                }
+            } else if ([firstOperand isKindOfClass:[NSString class]]) {
+                if ([[self class] isErrorCondition:firstOperand]) {
+                    result = firstOperand;
+                }
+/* I think either can be argued to be correct  */            
+
             } else {
                 result = @"Insufficient Operands";
             }
-            
         } else if ([[self class] isSingleOpOperation:operation]) {
             id operand = [self popOperandOffStack:stack];
 
