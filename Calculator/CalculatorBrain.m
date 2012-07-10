@@ -324,22 +324,25 @@
         if ([program isKindOfClass:[NSArray class]]) {
             stack = [program mutableCopy];
         }
-        // what we do now is iterate through the stack, replacing all variables
-        // with their looked up values from the dictionary
-        for ( int i = 0;i < stack.count; i++) {
-            id obj = [stack objectAtIndex:i]; 
-            
-            if ([obj isKindOfClass:[NSString class]] && ![[self class] isOperation:obj]) {
-                id value = [variableValues objectForKey:obj];         
-                // If value is not an instance of NSNumber, set it to zero
-                if (![value isKindOfClass:[NSNumber class]]) {
-                    value = [NSNumber numberWithInt:0];
+        if ([variableValues isKindOfClass:[NSDictionary class]]) {
+            if (variableValues) {
+                // what we do now is iterate through the stack, replacing all variables
+                // with their looked up values from the dictionary
+                for ( int i = 0;i < stack.count; i++) {
+                    id obj = [stack objectAtIndex:i]; 
+                    
+                    if ([obj isKindOfClass:[NSString class]] && ![[self class] isOperation:obj]) {
+                        id value = [variableValues objectForKey:obj];         
+                        // If value is not an instance of NSNumber, set it to zero
+                        if (![value isKindOfClass:[NSNumber class]]) {
+                            value = [NSNumber numberWithInt:0];
+                        }
+                        // Replace program variable with value.
+                        [stack replaceObjectAtIndex:i withObject:value];
+                    }     
                 }
-                // Replace program variable with value.
-                [stack replaceObjectAtIndex:i withObject:value];
-            }     
+            }
         }
-
         // If we have anything sitting on the stack, return it, otherwise we have cleared the brain and we should return 0
         if (stack.count > 0) {
             return [self popOperandOffStack:stack];

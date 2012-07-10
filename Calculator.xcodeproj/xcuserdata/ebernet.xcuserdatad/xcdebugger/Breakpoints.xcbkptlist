@@ -8,11 +8,13 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Calculator/CalculatorViewController.m"
-         timestampString = "363479538.485715"
+         timestampString = "363583686.122009"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "257"
-         endingLineNumber = "257">
+         startingLineNumber = "260"
+         endingLineNumber = "260"
+         landmarkName = "-updateDisplay"
+         landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "No"
@@ -24,7 +26,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "182"
          endingLineNumber = "182"
-         landmarkName = "+requiresParens:"
+         landmarkName = "+descriptionOfTopOfStack:"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
@@ -37,7 +39,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "180"
          endingLineNumber = "180"
-         landmarkName = "+requiresParens:"
+         landmarkName = "+descriptionOfTopOfStack:"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
@@ -50,7 +52,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "183"
          endingLineNumber = "183"
-         landmarkName = "+requiresParens:"
+         landmarkName = "+descriptionOfTopOfStack:"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

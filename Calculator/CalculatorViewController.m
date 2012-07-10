@@ -212,7 +212,7 @@
 - (void)updateDisplay
 {
     // Evaluate the program, place the result in the display. Result may be an error condition
-    id resultOfProgram = [CalculatorBrain runProgram:[self.brain program] usingVariableValues:self.testVariableValues];
+    id resultOfProgram = [[self.brain class] runProgram:[self.brain program] usingVariableValues:self.testVariableValues];
     if ([resultOfProgram isKindOfClass:[NSNumber class]]) {
         self.display.text = [NSString stringWithFormat:@"%g",[resultOfProgram doubleValue]];
     } else if ([resultOfProgram isKindOfClass:[NSString class]]) {
@@ -224,16 +224,19 @@
     // Always show the program, not its evaluation, in the brainInputDisplay.
     self.brainInputDisplay.text = @"";
     if ([self.brain program])
-        self.brainInputDisplay.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
+        self.brainInputDisplay.text = [[self.brain class] descriptionOfProgram:[self.brain program]];
     
     // Show variables used in the current program. Note, current implementation of brain returns ALL variables, even those
     // Not in the current program, as long as they are somewhere within the program stack
     self.variableDisplay.text = @"";
     // Only if the dictionary is not nil
     if (self.testVariableValues) {
-        NSArray *variablesInUse = [[CalculatorBrain variablesUsedInProgram:self.brain.program] allObjects];
-        for (int i = 0; i < variablesInUse.count; i++) {
-            self.variableDisplay.text = [self.variableDisplay.text stringByAppendingFormat:@"%@ = %g, ",[variablesInUse objectAtIndex:i],[[self.testVariableValues valueForKey:[variablesInUse objectAtIndex:i]] doubleValue]];
+        NSSet *variablesInUse = [[self.brain class] variablesUsedInProgram:self.brain.program];
+        for (id variable in variablesInUse) {
+            NSNumber *value = [self.testVariableValues objectForKey:variable];
+            if (value) {
+                self.variableDisplay.text = [self.variableDisplay.text stringByAppendingFormat:@"%@ = %@, ",variable,value];
+            }
         }
         // Remove the trailing ", "
         if (self.variableDisplay.text.length > 0) self.variableDisplay.text = [self.variableDisplay.text substringToIndex:self.variableDisplay.text.length-2];
