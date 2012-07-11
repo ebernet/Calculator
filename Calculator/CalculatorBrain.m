@@ -101,100 +101,174 @@
 
 #pragma mark Display brain methods
 
-+ (NSString *)removeParens:(NSString *)expressionToSimplify
+
+// Replaced my long code below with this code, that I got some help on
+// + and - have a lower priority than times and divide
++ (NSUInteger)priority:(NSString *)operation
 {
-    // for all we know, no simplification is needed
-    NSString *returnString = [expressionToSimplify copy];
-    // if our expression is inside paretheses, remove them
-    if ([expressionToSimplify hasPrefix:@"("] && [expressionToSimplify hasSuffix:@")"]) {
-        returnString = [expressionToSimplify substringWithRange:NSMakeRange(1,(expressionToSimplify.length -2))];
-    }
-    // If after removing parentheses from begining and end, if there are mismatched parentheses inside, return original expression
-    NSRange openParens = [returnString rangeOfString:@"("];
-    NSRange closeParens = [returnString rangeOfString:@")"];
-    
-    if ((openParens.location != NSNotFound) && (closeParens.location != NSNotFound)) {
-        if (openParens.location <= closeParens.location)
-            return returnString; // If the open one is before the closed one
-        else
-            return expressionToSimplify;
-
-    } else {
-        return returnString;
-    }
-}
-
-
-+ (NSUInteger)operationPrecedence:(NSString *)operation
-{
-    NSArray *operations = [NSArray arrayWithObjects:@"÷",@"−" ,@"×",@"+",  nil];
-    return [operations indexOfObject:operation]+1;
-}
-
-// Find the precedence of the 1st operation in the given string
-+ (NSUInteger)nextOpPrecedence:(NSString *)nextOp
-{
-    NSCharacterSet *doubleOpOps = [NSCharacterSet characterSetWithCharactersInString:@"÷−×+"];
-    // find 1t of any of these 4 operations, and get its location
-    NSRange firstFoundOp = [nextOp rangeOfCharacterFromSet:doubleOpOps];
-    if (firstFoundOp.location != NSNotFound) {
-        return [[self class] operationPrecedence:[nextOp substringWithRange:NSMakeRange (firstFoundOp.location,1)]];
-    } else {
+    if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"−"])
         return 0;
-    }
+    else
+        return 1;
 }
 
+// This will call a modigfied description, see below
++ (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack
+{
+    return [self descriptionOfTopOfStack:stack operation:nil operandOnRight:NO];
+}
 
-// Homework 2, part 2 - use this to do infix and put correct parens, above to clean up parens
-// Similar to popOperandOffStack Note this is recursive, so we consume the stack
-+ (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack {
-    // Blank string to be created and appended to
-    NSMutableString *programFragment = [NSMutableString stringWithString:@""];
-    
-    // Get the top operand. it could be another program, an operation, or a value
+// Takes the stack (program), the operation itself (note, it will be nil UNLESS you are looking at a double op), and whether you are evaluating the RIGHT side of the equatiion...
++ (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack operation:(id)parent operandOnRight:(BOOL)onRight
+{
+    // Consume the stack. Look at what is on top
     id topOfStack = [stack lastObject];
     if (topOfStack) [stack removeLastObject];
-    
-    // Value? append it to the programFragment string
+
+        // Value? Just return it...
     if ([topOfStack isKindOfClass:[NSNumber class]]) {
-        [programFragment appendFormat:@"%g", [topOfStack doubleValue]];
-    // If it is a string, it must be a variable or an operation
+        return  [NSString stringWithFormat:@"%g",[topOfStack doubleValue] ];
+        // If it is a string, it must be a variable or an operation
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
-        NSString *operation = topOfStack;
-        // Double operand operations must be in the correct order, and depending on type do and do not have parens
-        if ([self isDoubleOpOperation:operation]) {
-            NSString *secondOperand = [self descriptionOfTopOfStack:stack];
-            NSString *firstOperand = [self descriptionOfTopOfStack:stack];
-
-          
-            // This one was SUPER tough!!
-            if ([self operationPrecedence:operation] < [self nextOpPrecedence:secondOperand]) {
-                [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  secondOperand];
-            } else if ([self operationPrecedence:operation] == [self nextOpPrecedence:secondOperand]) {
-                [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  [self removeParens:secondOperand]];
-            } else {
-                [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
-            }
-            
-            
-
-        } else if ([self isSingleOpOperation:operation]) {
+        if ([self isSingleOpOperation:(NSString *) topOfStack]) {
             // Single operation operands always have parens around them
-            [programFragment appendFormat:@"%@(%@)", operation, [self removeParens:[self descriptionOfTopOfStack:stack]]];
-        } else if ([self isNoOpOperation:operation]) {
-            // no ops, constants, like π, e, etc.
-            [programFragment appendFormat:@"%@", operation];
-        } else if ([self isErrorCondition:operation]) {
-            // errors
-            [programFragment appendFormat:@"%@", [self removeParens:[self descriptionOfTopOfStack:stack]]];
+            return [NSString stringWithFormat:@"%@(%@)", topOfStack, [self descriptionOfTopOfStack:stack]];
+        } else if ([self isNoOpOperation:(NSString *) topOfStack]) {
+            // no ops, constants, like π, e, etc. Just return it
+            return topOfStack;
+            // Errors, just return the error through it...
+        } else if ([self isErrorCondition:(NSString *) topOfStack]) {
+            return topOfStack;
+            // Meat and potatoes below!!!
+        } else if ([self isDoubleOpOperation:(NSString *) topOfStack]) {
+            
+            // topOfStack is a doubleOp operation, recursively call to get both sides, use flag to indicate right side of equation
+            NSString * secondOperand = [self descriptionOfTopOfStack:stack operation:topOfStack operandOnRight:YES];
+            NSString * firstOperand = [self descriptionOfTopOfStack:stack operation:topOfStack operandOnRight:NO];
+            // are we down in the recursion?
+            if (parent) {
+                // YES, we are. We need to enclose in parentheses if operation has lower priority than its parent's
+                // (because it will be to the RIGHT of the parent operation.
+                // OR, if it is on the right side already and the priorities are the same BUT our parent operation is / or -,
+                // since 3 - (4 + 5) is not the same as 3 - 4 + 5, and 3 / (4 * 5) is not the same as 3 / 4 * 5, even though the
+                // priorities of the two operations in each of those ARE the same
+                if ([self priority:topOfStack] < [self priority:parent] || (onRight && ([self priority:topOfStack] == [self priority:parent]) && 
+                                                                            ([parent isEqualToString:@"÷"] ||[parent isEqualToString:@"−"]))) {
+                    return [NSString stringWithFormat:@"(%@ %@ %@)", firstOperand, topOfStack, secondOperand];
+                } else {
+                    // Above not met, do not need parentheses
+                    return [NSString stringWithFormat:@"%@ %@ %@", firstOperand, topOfStack, secondOperand];
+                }
+                
+            } else {
+                // No parent operation, so parentheses not needed
+                return [NSString stringWithFormat:@"%@ %@ %@", firstOperand, topOfStack, secondOperand];
+            }
+                
         } else {
-            // If all else fails, it is a variable, just returun it
-            [programFragment appendFormat:@"%@", operation];
+            // Must be a variable
+            return topOfStack;
         }
     }
-    
-    return programFragment;
+    // No topOfStack, recursion done
+    return nil;   
 }
+
+
+//+ (NSString *)removeParens:(NSString *)expressionToSimplify
+//{
+//    // for all we know, no simplification is needed
+//    NSString *returnString = [expressionToSimplify copy];
+//    // if our expression is inside paretheses, remove them
+//    if ([expressionToSimplify hasPrefix:@"("] && [expressionToSimplify hasSuffix:@")"]) {
+//        returnString = [expressionToSimplify substringWithRange:NSMakeRange(1,(expressionToSimplify.length -2))];
+//    }
+//    // If after removing parentheses from begining and end, if there are mismatched parentheses inside, return original expression
+//    NSRange openParens = [returnString rangeOfString:@"("];
+//    NSRange closeParens = [returnString rangeOfString:@")"];
+//    
+//    if ((openParens.location != NSNotFound) && (closeParens.location != NSNotFound)) {
+//        if (openParens.location <= closeParens.location)
+//            return returnString; // If the open one is before the closed one
+//        else
+//            return expressionToSimplify;
+//
+//    } else {
+//        return returnString;
+//    }
+//}
+//
+//
+//+ (NSUInteger)operationPrecedence:(NSString *)operation
+//{
+//    NSArray *operations = [NSArray arrayWithObjects:@"÷",@"−" ,@"×",@"+",  nil];
+//    return [operations indexOfObject:operation]+1;
+//}
+//
+//// Find the precedence of the 1st operation in the given string
+//+ (NSUInteger)nextOpPrecedence:(NSString *)nextOp
+//{
+//    NSCharacterSet *doubleOpOps = [NSCharacterSet characterSetWithCharactersInString:@"÷−×+"];
+//    // find 1t of any of these 4 operations, and get its location
+//    NSRange firstFoundOp = [nextOp rangeOfCharacterFromSet:doubleOpOps];
+//    if (firstFoundOp.location != NSNotFound) {
+//        return [[self class] operationPrecedence:[nextOp substringWithRange:NSMakeRange (firstFoundOp.location,1)]];
+//    } else {
+//        return 0;
+//    }
+//}
+//
+//
+//// Homework 2, part 2 - use this to do infix and put correct parens, above to clean up parens
+//// Similar to popOperandOffStack Note this is recursive, so we consume the stack
+//+ (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack {
+//    // Blank string to be created and appended to
+//    NSMutableString *programFragment = [NSMutableString stringWithString:@""];
+//    
+//    // Get the top operand. it could be another program, an operation, or a value
+//    id topOfStack = [stack lastObject];
+//    if (topOfStack) [stack removeLastObject];
+//    
+//    // Value? append it to the programFragment string
+//    if ([topOfStack isKindOfClass:[NSNumber class]]) {
+//        [programFragment appendFormat:@"%g", [topOfStack doubleValue]];
+//    // If it is a string, it must be a variable or an operation
+//    } else if ([topOfStack isKindOfClass:[NSString class]]) {
+//        NSString *operation = topOfStack;
+//        // Double operand operations must be in the correct order, and depending on type do and do not have parens
+//        if ([self isDoubleOpOperation:operation]) {
+//            NSString *secondOperand = [self descriptionOfTopOfStack:stack];
+//            NSString *firstOperand = [self descriptionOfTopOfStack:stack];
+//
+//          
+//            // This one was SUPER tough!!
+//            if ([self operationPrecedence:operation] < [self nextOpPrecedence:secondOperand]) {
+//                [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  secondOperand];
+//            } else if ([self operationPrecedence:operation] == [self nextOpPrecedence:secondOperand]) {
+//                [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  [self removeParens:secondOperand]];
+//            } else {
+//                [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
+//            }
+//            
+//            
+//
+//        } else if ([self isSingleOpOperation:operation]) {
+//            // Single operation operands always have parens around them
+//            [programFragment appendFormat:@"%@(%@)", operation, [self removeParens:[self descriptionOfTopOfStack:stack]]];
+//        } else if ([self isNoOpOperation:operation]) {
+//            // no ops, constants, like π, e, etc.
+//            [programFragment appendFormat:@"%@", operation];
+//        } else if ([self isErrorCondition:operation]) {
+//            // errors
+//            [programFragment appendFormat:@"%@", [self removeParens:[self descriptionOfTopOfStack:stack]]];
+//        } else {
+//            // If all else fails, it is a variable, just returun it
+//            [programFragment appendFormat:@"%@", operation];
+//        }
+//    }
+//    
+//    return programFragment;
+//}
 
 // Homework 2, part 1
 // The hint was this is like runProgram, so we do pretty much the same
@@ -210,7 +284,7 @@
     }
     // While there is a program left, create an array, so as I can join with comma!
     while ([stack count] > 0) {
-        [equations addObject:[self removeParens:[self descriptionOfTopOfStack:stack]]];
+        [equations addObject:[self descriptionOfTopOfStack:stack]];
     }
 
     // New way to do it! Use the AWESOME componentsJoinedByString
