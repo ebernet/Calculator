@@ -101,7 +101,6 @@
 
 #pragma mark Display brain methods
 
-// Extra credit, removes unnecessary parenthases. Part of part 2
 + (NSString *)removeParens:(NSString *)expressionToSimplify
 {
     // for all we know, no simplification is needed
@@ -144,12 +143,7 @@
         return 0;
     }
 }
-+ (BOOL)requiresParens:(NSString *)expression
-{
-    NSRange times = [expression rangeOfString:@"×"];
-    NSRange add = [expression rangeOfString:@"+"];
-    return ((times.location != NSNotFound) || (add.location != NSNotFound));
-}
+
 
 // Homework 2, part 2 - use this to do infox and put correct parens, above to clean up parens
 // Similar to popOperandOffStack Note this is recursive, so we consume the stack
@@ -172,9 +166,12 @@
             NSString *secondOperand = [self descriptionOfTopOfStack:stack];
             NSString *firstOperand = [self descriptionOfTopOfStack:stack];
 
-            // There is still one expression I know of I am not fully reducing: π * (r * r) could be π * r * r
-            if ([self operationPrecedence:operation] <= [self nextOpPrecedence:secondOperand]) {
+          
+            // This one was SUPER tough!!
+            if ([self operationPrecedence:operation] < [self nextOpPrecedence:secondOperand]) {
                 [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  secondOperand];
+            } else if ([self operationPrecedence:operation] == [self nextOpPrecedence:secondOperand]) {
+                [programFragment appendFormat:@"%@ %@ %@", firstOperand, operation,  [self removeParens:secondOperand]];
             } else {
                 [programFragment appendFormat:@"(%@ %@ %@)", [self removeParens:firstOperand], operation, [self removeParens:secondOperand]];
             }
