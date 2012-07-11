@@ -145,7 +145,7 @@
 }
 
 
-// Homework 2, part 2 - use this to do infox and put correct parens, above to clean up parens
+// Homework 2, part 2 - use this to do infix and put correct parens, above to clean up parens
 // Similar to popOperandOffStack Note this is recursive, so we consume the stack
 + (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack {
     // Blank string to be created and appended to
