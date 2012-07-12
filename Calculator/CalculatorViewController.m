@@ -242,7 +242,10 @@
         if (self.variableDisplay.text.length > 0) self.variableDisplay.text = [self.variableDisplay.text substringToIndex:self.variableDisplay.text.length-2];
     }
 }
-
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+    return (toInterfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+}
 
 - (void)viewDidUnload {
     [self setBrainInputDisplay:nil];
