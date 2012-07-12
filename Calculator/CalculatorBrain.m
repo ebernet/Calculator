@@ -131,8 +131,13 @@
         // If it is a string, it must be a variable or an operation
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         if ([self isSingleOpOperation:(NSString *) topOfStack]) {
-            // Single operation operands always have parens around them
-            return [NSString stringWithFormat:@"%@(%@)", topOfStack, [self descriptionOfTopOfStack:stack]];
+            // Single operation operands always have parens around them. Below is to prevent double Parens, because nil
+            // always displays as (null) with description
+            NSString *operand = [self descriptionOfTopOfStack:stack];
+            if (operand)
+                return [NSString stringWithFormat:@"%@(%@)", topOfStack, operand];
+            else 
+                return [NSString stringWithFormat:@"%@%@", topOfStack, operand];
         } else if ([self isNoOpOperation:(NSString *) topOfStack]) {
             // no ops, constants, like π, e, etc. Just return it
             return topOfStack;
