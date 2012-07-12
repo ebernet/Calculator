@@ -10,6 +10,7 @@
 		A01BFAAC15A64E7700364220 /* backspace.png in Resources */ = {isa = PBXBuildFile; fileRef = A01BFAAB15A64E7700364220 /* backspace.png */; };
 		A01BFAAF15A6510700364220 /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = A01BFAAE15A6510700364220 /* click.wav */; };
 		A01BFAB215A657B900364220 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A01BFAB015A6578000364220 /* AudioToolbox.framework */; };
+		A0636BD615AF631700973EC4 /* AxesDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = A0636BD515AF631700973EC4 /* AxesDrawer.m */; };
 		A0CF9F3B157D98290092B399 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3A157D98290092B399 /* UIKit.framework */; };
 		A0CF9F3D157D98290092B399 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3C157D98290092B399 /* Foundation.framework */; };
 		A0CF9F3F157D98290092B399 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3E157D98290092B399 /* CoreGraphics.framework */; };
@@ -25,6 +26,8 @@
 		A01BFAAB15A64E7700364220 /* backspace.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backspace.png; sourceTree = "<group>"; };
 		A01BFAAE15A6510700364220 /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
 		A01BFAB015A6578000364220 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		A0636BD415AF631700973EC4 /* AxesDrawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxesDrawer.h; sourceTree = "<group>"; };
+		A0636BD515AF631700973EC4 /* AxesDrawer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AxesDrawer.m; sourceTree = "<group>"; };
 		A0CF9F36157D98290092B399 /* Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0CF9F3A157D98290092B399 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A0CF9F3C157D98290092B399 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -66,6 +69,15 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		A0636BD315AF631700973EC4 /* AxesDrawer */ = {
+			isa = PBXGroup;
+			children = (
+				A0636BD415AF631700973EC4 /* AxesDrawer.h */,
+				A0636BD515AF631700973EC4 /* AxesDrawer.m */,
+			);
+			path = AxesDrawer;
+			sourceTree = "<group>";
+		};
 		A0CF9F2B157D98290092B399 = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +116,7 @@
 				A0CF9F58157DA23E0092B399 /* CalculatorBrain.m */,
 				A0CF9F4F157D98290092B399 /* CalculatorViewController.h */,
 				A0CF9F50157D98290092B399 /* CalculatorViewController.m */,
+				A0636BD315AF631700973EC4 /* AxesDrawer */,
 				A0CF9F41157D98290092B399 /* Supporting Files */,
 			);
 			path = Calculator;
@@ -191,6 +204,7 @@
 				A0CF9F4B157D98290092B399 /* CalculatorAppDelegate.m in Sources */,
 				A0CF9F51157D98290092B399 /* CalculatorViewController.m in Sources */,
 				A0CF9F59157DA23E0092B399 /* CalculatorBrain.m in Sources */,
+				A0636BD615AF631700973EC4 /* AxesDrawer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

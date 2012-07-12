@@ -135,7 +135,7 @@
             // always displays as (null) with description
             NSString *operand = [self descriptionOfTopOfStack:stack];
             if (operand)
-                return [NSString stringWithFormat:@"%@(%@)", topOfStack, [self removeParens: operand]];
+                return [NSString stringWithFormat:@"%@(%@)", topOfStack, operand];
             else 
                 return [NSString stringWithFormat:@"%@%@", topOfStack, operand];
         } else if ([self isNoOpOperation:(NSString *) topOfStack]) {
@@ -180,28 +180,28 @@
 }
 
 
-+ (NSString *)removeParens:(NSString *)expressionToSimplify
-{
-    // for all we know, no simplification is needed
-    NSString *returnString = [expressionToSimplify copy];
-    // if our expression is inside paretheses, remove them
-    if ([expressionToSimplify hasPrefix:@"("] && [expressionToSimplify hasSuffix:@")"]) {
-        returnString = [expressionToSimplify substringWithRange:NSMakeRange(1,(expressionToSimplify.length -2))];
-    }
-    // If after removing parentheses from begining and end, if there are mismatched parentheses inside, return original expression
-    NSRange openParens = [returnString rangeOfString:@"("];
-    NSRange closeParens = [returnString rangeOfString:@")"];
-    
-    if ((openParens.location != NSNotFound) && (closeParens.location != NSNotFound)) {
-        if (openParens.location <= closeParens.location)
-            return returnString; // If the open one is before the closed one
-        else
-            return expressionToSimplify;
-
-    } else {
-        return returnString;
-    }
-}
+//+ (NSString *)removeParens:(NSString *)expressionToSimplify
+//{
+//    // for all we know, no simplification is needed
+//    NSString *returnString = [expressionToSimplify copy];
+//    // if our expression is inside paretheses, remove them
+//    if ([expressionToSimplify hasPrefix:@"("] && [expressionToSimplify hasSuffix:@")"]) {
+//        returnString = [expressionToSimplify substringWithRange:NSMakeRange(1,(expressionToSimplify.length -2))];
+//    }
+//    // If after removing parentheses from begining and end, if there are mismatched parentheses inside, return original expression
+//    NSRange openParens = [returnString rangeOfString:@"("];
+//    NSRange closeParens = [returnString rangeOfString:@")"];
+//    
+//    if ((openParens.location != NSNotFound) && (closeParens.location != NSNotFound)) {
+//        if (openParens.location <= closeParens.location)
+//            return returnString; // If the open one is before the closed one
+//        else
+//            return expressionToSimplify;
+//
+//    } else {
+//        return returnString;
+//    }
+//}
 //
 //
 //+ (NSUInteger)operationPrecedence:(NSString *)operation
