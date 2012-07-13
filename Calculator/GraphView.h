@@ -16,6 +16,12 @@
 
 @interface GraphView : UIView
 
+- (void)loadDefaults;
+
+@property (nonatomic) CGFloat scale; // this is the scale that the graph will show
+@property (nonatomic) CGPoint graphOrigin; // this is the origin of the graph
+@property (nonatomic) BOOL drawSegmented; // This decides which drawing mode you use.
+
 @property (nonatomic, weak) id <GraphViewDataSource> dataSource;
 
 @end

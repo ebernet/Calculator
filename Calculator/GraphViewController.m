@@ -32,12 +32,15 @@
 - (void)setGraphView:(GraphView *)graphView
 {
     _graphView = graphView;
-    // enable pinch gestures in the FaceView using its pinch: handler
-//    [self.faceView addGestureRecognizer:[[UIPinchGestureRecognizer alloc] initWithTarget:self.faceView action:@selector(pinch:)]];
-//    // recognize a pan gesture and modify our Model
-//    [self.faceView addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleHappinessGesture:)]];
+    [self.graphView addGestureRecognizer:[[UIPinchGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(pinch:)]];
+    [self.graphView addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(pan:)]];
+    UITapGestureRecognizer *tripleFingerDTap = [[UITapGestureRecognizer alloc] initWithTarget:self.graphView action:@selector(tap:)];
+    tripleFingerDTap.numberOfTapsRequired = 3;
+    
+    [self.graphView addGestureRecognizer:tripleFingerDTap];
     self.graphView.dataSource = self;
 }
+
 
 - (void)viewDidLoad
 {
@@ -55,7 +58,7 @@
             descriptionOfProgram = [(NSString *)descriptionOfProgram substringToIndex:commaLocation.location];
         self.graphEquation.text = [NSString stringWithFormat:@"y = %@",descriptionOfProgram];
     }
-//    [self.graphView loadDefaults];
+    [self.graphView loadDefaults];
 }
 
 - (void)setProgram:(id)program
@@ -70,6 +73,9 @@
 
 - (CGFloat)yForGraphView:(GraphView *)sender fromXValue:(CGFloat)x
 {
+    // If there is no program, no need to do calculations. Retunr Not A Number.
+    
+    if ([[self program] count] == 0) return NAN;
     CGFloat returnVal = 0;
     id returnedValue = [CalculatorBrain runProgram:[self program]
                                usingVariableValues:[NSDictionary dictionaryWithObjectsAndKeys:

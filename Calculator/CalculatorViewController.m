@@ -29,6 +29,7 @@
 @synthesize testVariableValues = _testVariableValues;
 @synthesize buttonClick;
 
+#define GRAPH_BUTTON_TAG 10
 
 - (CalculatorBrain*)brain
 {
@@ -229,12 +230,22 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([segue.identifier isEqualToString:@"ShowGraph"]) {
-        if ([segue.destinationViewController isKindOfClass:[GraphViewController class]]) {
-            GraphViewController *graphViewController = segue.destinationViewController;
-            [graphViewController setProgram:[self.brain program]];
-        }
-        
-        
+        [segue.destinationViewController setProgram:[self.brain program]];
+    }
+}
+
+- (void)viewWillLayoutSubviews
+{
+    // Adjust position for graph button
+    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
+    {
+        // code for landscape orientation   
+        [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(384, 214, 44, 44);
+ 
+    } else {
+        // code for portrait orientation   
+        [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(250, 335, 44, 44);
+       
     }
 }
 
