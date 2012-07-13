@@ -119,7 +119,6 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
 - (void)setGraphOrigin:(CGPoint)graphOrigin {
     if (!CGPointEqualToPoint(graphOrigin,_graphOrigin)) {
         _graphOrigin = graphOrigin;
-        [[NSUserDefaults standardUserDefaults] setObject:NSStringFromCGPoint(_graphOrigin) forKey:GraphingCalculatorOriginPrefKey];
         [self setNeedsDisplay];
     }
 }
@@ -131,6 +130,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
         gesture.scale = 1;
         // Set this here because a default is not created until AFTER we manipulate it ourselves
         [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithFloat:self.scale] forKey:GraphingCalculatorScalePrefKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
     }
 }
 
@@ -143,6 +143,9 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
         CGFloat currentY = self.graphOrigin.y;
         self.graphOrigin = CGPointMake(currentX + (translation.x / 1), currentY + (translation.y / 1));
         [gesture setTranslation:CGPointZero inView:self];
+        // Set this here because a default is not created until AFTER we manipulate it ourselves
+        [[NSUserDefaults standardUserDefaults] setObject:NSStringFromCGPoint(self.graphOrigin) forKey:GraphingCalculatorOriginPrefKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
     }
 }
 
@@ -151,6 +154,9 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     if ((gesture.state == UIGestureRecognizerStateChanged) || (gesture.state == UIGestureRecognizerStateEnded)) {
         CGPoint currentLocation = [gesture locationInView:self];
         self.graphOrigin = currentLocation;
+        // Set this here because a default is not created until AFTER we manipulate it ourselves
+        [[NSUserDefaults standardUserDefaults] setObject:NSStringFromCGPoint(self.graphOrigin) forKey:GraphingCalculatorOriginPrefKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
     }
 }
 

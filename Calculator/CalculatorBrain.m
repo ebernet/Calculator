@@ -40,13 +40,13 @@
 
 + (BOOL)isOperation:(NSString *)operation
 {
-    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"√",@"×",@"÷",@"+",@"−",@"π",@"±",@"e",@"log",nil];
+    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"tan",@"√",@"×",@"÷",@"+",@"−",@"π",@"±",@"e",@"log",nil];
     return [operationSet containsObject:operation];
 }
 
 + (BOOL)isSingleOpOperation:(NSString *)operation
 {
-    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"√",@"log",@"±",nil];
+    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"tan",@"√",@"log",@"±",nil];
     return [operationSet containsObject:operation];
 }
 
@@ -264,6 +264,8 @@
                     result = [NSNumber numberWithFloat:sin(operandVal)];
                 } else if ([@"cos" isEqualToString:operation]) {
                     result = [NSNumber numberWithFloat:cos(operandVal)];
+                } else if ([@"tan" isEqualToString:operation]) {
+                    result = [NSNumber numberWithFloat:tan(operandVal)];
                 } else if ([@"log" isEqualToString:operation]) {
                     result = [NSNumber numberWithFloat:log2(operandVal)];
                 } else if ([@"±" isEqualToString:operation]) {                  // Weird bug where you can get -0

@@ -17,8 +17,6 @@
 @implementation GraphViewController
 @synthesize graphView = _graphView;
 @synthesize program = _program;
-@synthesize graphEquation = _graphEquation;
-
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -45,21 +43,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    id descriptionOfProgram = [CalculatorBrain descriptionOfProgram:[self program]];
-    if ([descriptionOfProgram isKindOfClass:[NSString class]] && ![descriptionOfProgram isEqualToString:@""]) {
-        // Only show what is being graphed. Other programs in stack not yet being used are NOT being graphed.
-        NSRange commaLocation = [descriptionOfProgram rangeOfString:@","];
-        if (commaLocation.location != NSNotFound)
-            descriptionOfProgram = [(NSString *)descriptionOfProgram substringToIndex:commaLocation.location];
-        self.graphEquation.text = [NSString stringWithFormat:@"y = %@",descriptionOfProgram];
-    }
+    // Load up any defaults, if there were any...
     [self.graphView loadDefaults];
 }
+
 
 - (void)setProgram:(id)program
 {
@@ -67,6 +54,13 @@
         _program = program;
         
         [self.graphView setNeedsDisplay];
+        id descriptionOfProgram = [CalculatorBrain descriptionOfProgram:[self program]];
+        if ([descriptionOfProgram isKindOfClass:[NSString class]] && ![descriptionOfProgram isEqualToString:@""]) {
+            NSRange commaLocation = [descriptionOfProgram rangeOfString:@","];
+            if (commaLocation.location != NSNotFound)
+                descriptionOfProgram = [(NSString *)descriptionOfProgram substringToIndex:commaLocation.location];
+            self.title = [NSString stringWithFormat:@"y = %@",descriptionOfProgram];
+        }
     }
 }
 
@@ -93,7 +87,6 @@
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
     [self setGraphView:nil];
-    [self setGraphEquation:nil];
     [super viewDidUnload];
 }
 

@@ -10,6 +10,10 @@
 		A01BFAAF15A6510700364220 /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = A01BFAAE15A6510700364220 /* click.wav */; };
 		A01BFAB215A657B900364220 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A01BFAB015A6578000364220 /* AudioToolbox.framework */; };
 		A061310415B0A6BE00C72B23 /* iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A061310215B0A6BE00C72B23 /* iPad.storyboard */; };
+		A061311315B0AF1200C72B23 /* ipadgraphicon.png in Resources */ = {isa = PBXBuildFile; fileRef = A061311215B0AF1200C72B23 /* ipadgraphicon.png */; };
+		A061311515B0AF1B00C72B23 /* ipadgraphicon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A061311415B0AF1B00C72B23 /* ipadgraphicon@2x.png */; };
+		A061311715B0AF2D00C72B23 /* graphicon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A061311615B0AF2D00C72B23 /* graphicon@2x.png */; };
+		A061311915B0AF3400C72B23 /* graphicon.png in Resources */ = {isa = PBXBuildFile; fileRef = A061311815B0AF3400C72B23 /* graphicon.png */; };
 		A0636BD615AF631700973EC4 /* AxesDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = A0636BD515AF631700973EC4 /* AxesDrawer.m */; };
 		A0636BDC15AF8FFD00973EC4 /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A0636BDB15AF8FFD00973EC4 /* GraphViewController.m */; };
 		A0636BDF15AF904800973EC4 /* GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0636BDE15AF904800973EC4 /* GraphView.m */; };
@@ -30,6 +34,10 @@
 		A01BFAAE15A6510700364220 /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
 		A01BFAB015A6578000364220 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A061310315B0A6BE00C72B23 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/iPad.storyboard; sourceTree = "<group>"; };
+		A061311215B0AF1200C72B23 /* ipadgraphicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ipadgraphicon.png; path = ../ipadgraphicon.png; sourceTree = "<group>"; };
+		A061311415B0AF1B00C72B23 /* ipadgraphicon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ipadgraphicon@2x.png"; path = "../ipadgraphicon@2x.png"; sourceTree = "<group>"; };
+		A061311615B0AF2D00C72B23 /* graphicon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "graphicon@2x.png"; path = "../graphicon@2x.png"; sourceTree = "<group>"; };
+		A061311815B0AF3400C72B23 /* graphicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = graphicon.png; path = ../graphicon.png; sourceTree = "<group>"; };
 		A0636BD415AF631700973EC4 /* AxesDrawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxesDrawer.h; sourceTree = "<group>"; };
 		A0636BD515AF631700973EC4 /* AxesDrawer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AxesDrawer.m; sourceTree = "<group>"; };
 		A0636BDA15AF8FFD00973EC4 /* GraphViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphViewController.h; sourceTree = "<group>"; };
@@ -73,6 +81,10 @@
 		A01BFAAD15A64E9300364220 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A061311815B0AF3400C72B23 /* graphicon.png */,
+				A061311615B0AF2D00C72B23 /* graphicon@2x.png */,
+				A061311415B0AF1B00C72B23 /* ipadgraphicon@2x.png */,
+				A061311215B0AF1200C72B23 /* ipadgraphicon.png */,
 				A0636BE215AF93E800973EC4 /* graph.png */,
 				A0636BE315AF93E900973EC4 /* graph@2x.png */,
 				A01BFAAE15A6510700364220 /* click.wav */,
@@ -208,6 +220,10 @@
 				A0636BE415AF93E900973EC4 /* graph.png in Resources */,
 				A0636BE515AF93E900973EC4 /* graph@2x.png in Resources */,
 				A061310415B0A6BE00C72B23 /* iPad.storyboard in Resources */,
+				A061311315B0AF1200C72B23 /* ipadgraphicon.png in Resources */,
+				A061311515B0AF1B00C72B23 /* ipadgraphicon@2x.png in Resources */,
+				A061311715B0AF2D00C72B23 /* graphicon@2x.png in Resources */,
+				A061311915B0AF3400C72B23 /* graphicon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

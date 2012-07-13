@@ -236,16 +236,19 @@
 
 - (void)viewWillLayoutSubviews
 {
-    // Adjust position for graph button
-    if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
-    {
-        // code for landscape orientation   
-        [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(384, 214, 44, 44);
- 
-    } else {
-        // code for portrait orientation   
-        [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(250, 335, 44, 44);
-       
+    
+    if (!(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)) {
+        // Adjust position for graph button
+        if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
+        {
+            // code for landscape orientation   
+            [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(384, 214, 44, 44);
+     
+        } else {
+            // code for portrait orientation   
+            [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(250, 335, 44, 44);
+           
+        }
     }
 }
 
