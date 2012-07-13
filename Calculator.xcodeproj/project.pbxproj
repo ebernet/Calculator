@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A01BFAAC15A64E7700364220 /* backspace.png in Resources */ = {isa = PBXBuildFile; fileRef = A01BFAAB15A64E7700364220 /* backspace.png */; };
 		A01BFAAF15A6510700364220 /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = A01BFAAE15A6510700364220 /* click.wav */; };
 		A01BFAB215A657B900364220 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A01BFAB015A6578000364220 /* AudioToolbox.framework */; };
 		A0636BD615AF631700973EC4 /* AxesDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = A0636BD515AF631700973EC4 /* AxesDrawer.m */; };
+		A0636BDC15AF8FFD00973EC4 /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A0636BDB15AF8FFD00973EC4 /* GraphViewController.m */; };
+		A0636BDF15AF904800973EC4 /* GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = A0636BDE15AF904800973EC4 /* GraphView.m */; };
+		A0636BE415AF93E900973EC4 /* graph.png in Resources */ = {isa = PBXBuildFile; fileRef = A0636BE215AF93E800973EC4 /* graph.png */; };
+		A0636BE515AF93E900973EC4 /* graph@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A0636BE315AF93E900973EC4 /* graph@2x.png */; };
 		A0CF9F3B157D98290092B399 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3A157D98290092B399 /* UIKit.framework */; };
 		A0CF9F3D157D98290092B399 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3C157D98290092B399 /* Foundation.framework */; };
 		A0CF9F3F157D98290092B399 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0CF9F3E157D98290092B399 /* CoreGraphics.framework */; };
@@ -23,11 +26,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A01BFAAB15A64E7700364220 /* backspace.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backspace.png; sourceTree = "<group>"; };
 		A01BFAAE15A6510700364220 /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
 		A01BFAB015A6578000364220 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A0636BD415AF631700973EC4 /* AxesDrawer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxesDrawer.h; sourceTree = "<group>"; };
 		A0636BD515AF631700973EC4 /* AxesDrawer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AxesDrawer.m; sourceTree = "<group>"; };
+		A0636BDA15AF8FFD00973EC4 /* GraphViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphViewController.h; sourceTree = "<group>"; };
+		A0636BDB15AF8FFD00973EC4 /* GraphViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphViewController.m; sourceTree = "<group>"; };
+		A0636BDD15AF904800973EC4 /* GraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphView.h; sourceTree = "<group>"; };
+		A0636BDE15AF904800973EC4 /* GraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphView.m; sourceTree = "<group>"; };
+		A0636BE215AF93E800973EC4 /* graph.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = graph.png; sourceTree = "<group>"; };
+		A0636BE315AF93E900973EC4 /* graph@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "graph@2x.png"; sourceTree = "<group>"; };
 		A0CF9F36157D98290092B399 /* Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0CF9F3A157D98290092B399 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A0CF9F3C157D98290092B399 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -63,8 +71,9 @@
 		A01BFAAD15A64E9300364220 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A0636BE215AF93E800973EC4 /* graph.png */,
+				A0636BE315AF93E900973EC4 /* graph@2x.png */,
 				A01BFAAE15A6510700364220 /* click.wav */,
-				A01BFAAB15A64E7700364220 /* backspace.png */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -112,6 +121,10 @@
 				A0CF9F49157D98290092B399 /* CalculatorAppDelegate.h */,
 				A0CF9F4A157D98290092B399 /* CalculatorAppDelegate.m */,
 				A0CF9F4C157D98290092B399 /* MainStoryboard.storyboard */,
+				A0636BDD15AF904800973EC4 /* GraphView.h */,
+				A0636BDE15AF904800973EC4 /* GraphView.m */,
+				A0636BDA15AF8FFD00973EC4 /* GraphViewController.h */,
+				A0636BDB15AF8FFD00973EC4 /* GraphViewController.m */,
 				A0CF9F57157DA23E0092B399 /* CalculatorBrain.h */,
 				A0CF9F58157DA23E0092B399 /* CalculatorBrain.m */,
 				A0CF9F4F157D98290092B399 /* CalculatorViewController.h */,
@@ -188,8 +201,9 @@
 			files = (
 				A0CF9F45157D98290092B399 /* InfoPlist.strings in Resources */,
 				A0CF9F4E157D98290092B399 /* MainStoryboard.storyboard in Resources */,
-				A01BFAAC15A64E7700364220 /* backspace.png in Resources */,
 				A01BFAAF15A6510700364220 /* click.wav in Resources */,
+				A0636BE415AF93E900973EC4 /* graph.png in Resources */,
+				A0636BE515AF93E900973EC4 /* graph@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,6 +219,8 @@
 				A0CF9F51157D98290092B399 /* CalculatorViewController.m in Sources */,
 				A0CF9F59157DA23E0092B399 /* CalculatorBrain.m in Sources */,
 				A0636BD615AF631700973EC4 /* AxesDrawer.m in Sources */,
+				A0636BDC15AF8FFD00973EC4 /* GraphViewController.m in Sources */,
+				A0636BDF15AF904800973EC4 /* GraphView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

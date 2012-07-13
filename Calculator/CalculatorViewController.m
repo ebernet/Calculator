@@ -8,6 +8,7 @@
 
 #import <AudioToolbox/AudioToolbox.h>
 #import "CalculatorViewController.h"
+#import "GraphViewController.h"
 #import "CalculatorBrain.h"
 
 @interface CalculatorViewController()
@@ -136,7 +137,8 @@
     [self updateDisplay];
 }
 
-- (IBAction)backspacePressed
+// Called from undo, no longer called from a button. Conserved space on calculator for assignment 3. Removed IBAction
+- (void)backspacePressed
 {
     // Only work if they are entering numbers
     if (self.userIsInTheMiddleOfEnteringANumber) {
@@ -165,26 +167,6 @@
     [self updateDisplay];
 }
 
-- (IBAction)testPressed:(UIButton *)sender
-{
-    if ([sender.currentTitle isEqualToString:@"Test 1"]) {
-        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    [NSNumber numberWithFloat:5.0], @"x",
-                                    [NSNumber numberWithFloat:4.8], @"a",
-                                    [NSNumber numberWithFloat:0], @"foo",
-                                    nil];
-    } else if  ([sender.currentTitle isEqualToString:@"Test 2"]) {
-        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   [NSNumber numberWithFloat:-2.0], @"x",
-                                   [NSNumber numberWithFloat:2.0], @"a",
-                                   [NSNumber numberWithFloat:0.2], @"foo",
-                                   nil];
-    } else if  ([sender.currentTitle isEqualToString:@"Test 3"]) {
-        self.testVariableValues = nil;
-    }
-
-    [self updateDisplay];
-}
 
 - (void)playButtonClick
 {
@@ -225,26 +207,6 @@
     self.brainInputDisplay.text = @"";
     if ([self.brain program])
         self.brainInputDisplay.text = [[self.brain class] descriptionOfProgram:[self.brain program]];
-    
-    // Show variables used in the current program. Note, current implementation of brain returns ALL variables, even those
-    // Not in the current program, as long as they are somewhere within the program stack
-    self.variableDisplay.text = @"";
-    // Only if the dictionary is not nil
-    if (self.testVariableValues) {
-        NSSet *variablesInUse = [[self.brain class] variablesUsedInProgram:self.brain.program];
-        for (id variable in variablesInUse) {
-            NSNumber *value = [self.testVariableValues objectForKey:variable];
-            if (value) {
-                self.variableDisplay.text = [self.variableDisplay.text stringByAppendingFormat:@"%@ = %@, ",variable,value];
-            }
-        }
-        // Remove the trailing ", "
-        if (self.variableDisplay.text.length > 0) self.variableDisplay.text = [self.variableDisplay.text substringToIndex:self.variableDisplay.text.length-2];
-    }
-}
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-    return (toInterfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 
 - (void)viewDidUnload {
@@ -253,4 +215,28 @@
     [self setVariableDisplay:nil];
     [super viewDidUnload];
 }
+
+#pragma mark Assignment 3 code
+
+// Allow everything but upsidedown for the calculator
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+    return (toInterfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+}
+
+// Pass the program onto the GraphView. While only topmost program will be graphed, lower down display will handle
+// Not showing it....
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"ShowGraph"]) {
+        if ([segue.destinationViewController isKindOfClass:[GraphViewController class]]) {
+            GraphViewController *graphViewController = segue.destinationViewController;
+            [graphViewController setProgram:[self.brain program]];
+        }
+        
+        
+    }
+}
+
+
 @end
