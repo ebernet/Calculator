@@ -92,6 +92,10 @@
 
 - (IBAction)enterPressed
 {
+    // The one case where you don't want to push the evaluation of the stack...
+    if ([[self.brain class] isErrorCondition:self.display.text]) {
+        return;
+    }
     [self playButtonClick];
     // Only gets called if the user was in the middle of entering a number, so it pushes value in the display
     // onto the stack

@@ -26,6 +26,7 @@
 + (id)runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues;
 + (NSString *)descriptionOfProgram:(id)program;
 + (NSSet *)variablesUsedInProgram:(id)program;
++ (BOOL)isErrorCondition:(NSString *)topOfStack;
 
 // Added to allow variables to be pushed
 - (void)pushVariable:(NSString *)variable;
