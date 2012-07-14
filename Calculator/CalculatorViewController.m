@@ -219,6 +219,16 @@
 
 #pragma mark Assignment 3 code
 
+// Need to disable swipes to reveal calculator for iOS 5.1, interferes with pan
+- (void)awakeFromNib
+{
+    [super awakeFromNib];
+    if (self.splitViewGraphViewController != nil)
+    {
+        self.splitViewController.presentsWithGesture = NO;
+    }
+}
+
 // Allow everything but upsidedown for the calculator
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
