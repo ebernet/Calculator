@@ -227,6 +227,7 @@
 
 // Pass the program onto the GraphView. While only topmost program will be graphed, lower down display will handle
 // Not showing it....
+// No need to check if splitViewCOntroller because not segueing on iPad, just updating detail view
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([segue.identifier isEqualToString:@"ShowGraph"]) {
@@ -234,20 +235,37 @@
     }
 }
 
+// Are we in a split view controller? If so, return detail view controller if it is a GraphViewController
+- (GraphViewController *)splitViewGraphViewController
+{
+    // splitViews always have just two, detail is lastObject
+    id gvc = [self.splitViewController.viewControllers lastObject];
+    if (![gvc isKindOfClass:[GraphViewController class]]) gvc = nil;
+    return gvc;
+}
+
+// For pressing update graph button from master of splitViewController
+- (IBAction)updateGraph
+{
+    if ([self splitViewGraphViewController]) {
+        [[self splitViewGraphViewController] setProgram:[self.brain program]];
+    }
+}
+
 - (void)viewWillLayoutSubviews
 {
-    
-    if (!(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)) {
+    // If we are on an iPhone, we want to do relative positioning for the graphing button
+    if (!self.splitViewController) {
         // Adjust position for graph button
         if (UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
         {
             // code for landscape orientation   
             [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(384, 214, 44, 44);
-     
+            
         } else {
             // code for portrait orientation   
             [self.view viewWithTag:GRAPH_BUTTON_TAG].frame = CGRectMake(250, 335, 44, 44);
-           
+            
         }
     }
 }

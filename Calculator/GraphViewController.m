@@ -12,11 +12,18 @@
 
 @interface GraphViewController () <GraphViewDataSource>
 @property (weak, nonatomic) IBOutlet GraphView *graphView;
+@property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
+@property (weak, nonatomic) IBOutlet UILabel *toolbarTitle;
 @end
 
 @implementation GraphViewController
 @synthesize graphView = _graphView;
+@synthesize toolbar = _toolbar;
 @synthesize program = _program;
+@synthesize splitViewBarButtonItem = _splitViewBarButtonItem;
+@synthesize toolbarTitle = _toolbarTitle;
+
+#define GRAPH_TITLE 9
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -25,6 +32,18 @@
         // Custom initialization
     }
     return self;
+}
+
+// This will be needed for iPad bar
+- (void)setSplitViewBarButtonItem:(UIBarButtonItem *)splitViewBarButtonItem
+{
+    if (_splitViewBarButtonItem != splitViewBarButtonItem) {
+        NSMutableArray *toolBarItems = [self.toolbar.items mutableCopy];
+        if (_splitViewBarButtonItem) [toolBarItems removeObject:_splitViewBarButtonItem];
+        if (splitViewBarButtonItem) [toolBarItems insertObject:splitViewBarButtonItem atIndex:0];
+        self.toolbar.items = toolBarItems;
+        _splitViewBarButtonItem = splitViewBarButtonItem;
+    }
 }
 
 - (void)setGraphView:(GraphView *)graphView
@@ -39,6 +58,10 @@
     self.graphView.dataSource = self;
 }
 
+- (IBAction)togglePixels:(id)sender {
+    if ([sender isKindOfClass:[UISwitch class]])
+        [self.graphView setDrawSegmented:[sender isOn]];
+}
 
 - (void)viewDidLoad
 {
@@ -53,14 +76,36 @@
     if (_program != program) {
         _program = program;
         
-        [self.graphView setNeedsDisplay];
         id descriptionOfProgram = [CalculatorBrain descriptionOfProgram:[self program]];
-        if ([descriptionOfProgram isKindOfClass:[NSString class]] && ![descriptionOfProgram isEqualToString:@""]) {
-            NSRange commaLocation = [descriptionOfProgram rangeOfString:@","];
-            if (commaLocation.location != NSNotFound)
-                descriptionOfProgram = [(NSString *)descriptionOfProgram substringToIndex:commaLocation.location];
-            self.title = [NSString stringWithFormat:@"y = %@",descriptionOfProgram];
+        // Okay, the program description is valid...
+        if ([descriptionOfProgram isKindOfClass:[NSString class]]) {
+            // No program, just say "Graph"
+            if ([descriptionOfProgram isEqualToString:@""]) {
+                if (self.splitViewController) {
+                    self.toolbarTitle.text = @"Graph";
+                } else {
+                    self.title = @"Graph";
+                }
+            } else {
+                // remove the comma if more than one program on stack
+                NSRange commaLocation = [descriptionOfProgram rangeOfString:@","];
+                if (commaLocation.location != NSNotFound)
+                    descriptionOfProgram = [(NSString *)descriptionOfProgram substringToIndex:commaLocation.location];
+
+                if (self.splitViewController) {
+                    self.toolbarTitle.text = [NSString stringWithFormat:@"Y = %@",descriptionOfProgram];	
+                } else {
+                    self.title = [NSString stringWithFormat:@"Y = %@",descriptionOfProgram];
+                }
+            }
+        } else {  // We had no program, or it was not a string
+            if (self.splitViewController) {
+                self.toolbarTitle.text = @"Graph";
+            } else {
+                self.title = @"Graph";
+            }
         }
+        [self.graphView setNeedsDisplay];
     }
 }
 
@@ -71,9 +116,16 @@
     
     if ([[self program] count] == 0) return NAN;
     CGFloat returnVal = 0;
+
+    // This allows me to alter the symbol for X without incurring problems
+    NSString *variableName;
+    if ([[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] count] > 0) {
+        variableName = [[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] objectAtIndex:0];
+    }
+    
     id returnedValue = [CalculatorBrain runProgram:[self program]
                                usingVariableValues:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                    [NSNumber numberWithDouble:x], @"x", nil]];
+                                                    [NSNumber numberWithDouble:x], variableName, nil]];
     
     if ([returnedValue isKindOfClass:[NSNumber class]]) {
         returnVal = [returnedValue doubleValue];
@@ -87,6 +139,7 @@
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
     [self setGraphView:nil];
+    [self setToolbar:nil];
     [super viewDidUnload];
 }
 
