@@ -11,7 +11,7 @@
 @class GraphView;
 
 @protocol GraphViewDataSource
-- (CGFloat)yForGraphView:(GraphView *)sender fromXValue:(CGFloat)x;
+- (id)yForGraphView:(GraphView *)sender fromXValue:(CGFloat)x;  // id to allow for NAN
 @end
 
 @interface GraphView : UIView

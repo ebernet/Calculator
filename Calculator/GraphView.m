@@ -25,6 +25,9 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
 
 - (double)calculateDefaultScale
 {
+    
+    // Updated to skip over values if they are invalid
+    
     // Figure out what the scale should be based on the program and the known size of the GraphView.
     // Note we want to look at the height since that is where the y result will be graphed
     
@@ -42,6 +45,9 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     CGFloat x;              // Used to iterate over x values
     CGFloat yForPositiveX;  // results for poitive x values...
     CGFloat yForNegativeX;  // and for negative x values
+    
+    id returnedValue;       // Used to handle errors for the deleghate method
+    
     CGFloat maxY = 0;       // what the current calculated maxY will be, allows us to continuously refine
     CGFloat maxX = 0;       // Same for x - we need scales to be the same on x AND y axis
     BOOL scaleUp = YES;     // Should our scale grow larger than 1, or should we be dividing the scale?
@@ -55,17 +61,44 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
             x = 1;
             heightToFigure = (yAxisHeightLimit * yScale);
             widthToFigure = (xAxisWidthLimit * yScale);
-            yForPositiveX = [self.dataSource yForGraphView:self fromXValue:x];
+            
+            returnedValue = [self.dataSource yForGraphView:self fromXValue:x];
+            if ([returnedValue isKindOfClass:[NSNumber class]]) {
+                yForPositiveX = [returnedValue doubleValue];
+            } else {
+                continue;
+            }
             if (abs(yForPositiveX) > maxY) maxY = abs(yForPositiveX);
-            yForNegativeX = [self.dataSource yForGraphView:self fromXValue:-x];
+            
+            returnedValue = [self.dataSource yForGraphView:self fromXValue:-x];
+            if ([returnedValue isKindOfClass:[NSNumber class]]) {
+                yForNegativeX = [returnedValue doubleValue];
+            } else {
+                continue;
+            }
+            if (abs(yForNegativeX) > maxY) maxY = abs(yForPositiveX);
+            
             if (abs(yForNegativeX) > maxY) maxY = abs(yForNegativeX);
             while ((abs(yForPositiveX) < heightToFigure) && 
                    (abs(yForNegativeX) < heightToFigure) &&
                    (x < widthToFigure)) {
                 x++;
-                yForPositiveX = [self.dataSource yForGraphView:self fromXValue:x];
+
+                returnedValue = [self.dataSource yForGraphView:self fromXValue:x];
+                if ([returnedValue isKindOfClass:[NSNumber class]]) {
+                    yForPositiveX = [returnedValue doubleValue];
+                } else {
+                    continue;
+                }
+
                 if (abs(yForPositiveX) > maxY) maxY = abs(yForPositiveX);
-                yForNegativeX = [self.dataSource yForGraphView:self fromXValue:-x];
+
+                returnedValue = [self.dataSource yForGraphView:self fromXValue:-x];
+                if ([returnedValue isKindOfClass:[NSNumber class]]) {
+                    yForNegativeX = [returnedValue doubleValue];
+                } else {
+                    continue;
+                }
                 if (abs(yForNegativeX) > maxY) maxY = abs(yForNegativeX);
             }
         }
@@ -213,8 +246,17 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     CGFloat xIncrementValue = 1/self.scale/screenScaling;
     
     CGFloat xValue = startingXValue;
-    CGFloat yValue = [self.dataSource yForGraphView:self fromXValue:xValue];
+    CGFloat yValue;
     
+    id returnedValue = [self.dataSource yForGraphView:self fromXValue:xValue];
+    if ([returnedValue isKindOfClass:[NSNumber class]]) {
+         yValue = [returnedValue doubleValue];
+    }
+    
+    // Used in continuing lines when not possible to move to line
+    CGFloat oldXValue;
+    CGFloat oldYValue;
+    BOOL drawnDiscontiguous = NO;
     
     
     if (self.drawSegmented) {
@@ -222,24 +264,58 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
         
         for (CGFloat x = startingXCoordinate+1; x <= endingXCoordinate; x+=xIncrement) {
             xValue += xIncrementValue;
-            yValue = [self.dataSource yForGraphView:self fromXValue:xValue];
-            if (yValue == NAN || yValue == INFINITY || yValue == -INFINITY) continue;
             
-            CGContextFillRect(context, CGRectMake(xOffset - (xValue*self.scale),yOffset-(yValue*self.scale),1,1));
+            returnedValue = [self.dataSource yForGraphView:self fromXValue:xValue];
+            if ([returnedValue isKindOfClass:[NSNumber class]]) {
+                yValue = [returnedValue doubleValue];
+            } else if ([returnedValue isKindOfClass:[NSString class]]) {
+                continue;
+            }
+
+            CGContextFillRect(context, CGRectMake(xOffset + (xValue*self.scale),yOffset-(yValue*self.scale),1,1));
         }
         
     } else {
         CGContextBeginPath(context);
         [[UIColor blueColor] setStroke];
-        CGContextMoveToPoint(context, xOffset - (xValue*self.scale), yOffset-(yValue*self.scale));
+
+        if ([returnedValue isKindOfClass:[NSNumber class]]) {
+            CGContextMoveToPoint(context, xOffset + (xValue*self.scale), yOffset-(yValue*self.scale));
+        } else {
+            while (![returnedValue isKindOfClass:[NSNumber class]] && (xValue <= endingXCoordinate)) {
+                returnedValue = [self.dataSource yForGraphView:self fromXValue:xValue];
+                xValue += xIncrementValue;
+            }
+            if (xValue > endingXCoordinate) {
+                return;
+            }
+            yValue = [returnedValue doubleValue];
+        
+            CGContextMoveToPoint(context, xOffset + (xValue*self.scale), yOffset-(yValue*self.scale));
+       
+        }
+
         
         for (CGFloat x = startingXCoordinate+1; x <= endingXCoordinate; x+=xIncrement) {
             xValue += xIncrementValue;
-            yValue = [self.dataSource yForGraphView:self fromXValue:xValue];
+
+            returnedValue = [self.dataSource yForGraphView:self fromXValue:xValue];
+            if ([returnedValue isKindOfClass:[NSNumber class]]) {
+                yValue = [returnedValue doubleValue];
+            } else if ([returnedValue isKindOfClass:[NSString class]]) {
+                if (!drawnDiscontiguous) {
+                    CGContextAddLineToPoint(context, xOffset + (oldXValue*self.scale), yOffset-(oldYValue*self.scale));
+                    drawnDiscontiguous = YES;
+                }
+                continue;
+            }
+
+
+            drawnDiscontiguous = NO;
+            oldXValue = xValue;
+            oldYValue = yValue;
             
-            if (yValue == NAN || yValue == INFINITY || yValue == -INFINITY) continue;
-            
-            CGContextAddLineToPoint(context, xOffset - (xValue*self.scale), yOffset-(yValue*self.scale));
+            CGContextAddLineToPoint(context, xOffset + (xValue*self.scale), yOffset-(yValue*self.scale));
             
         }
         CGContextStrokePath(context);

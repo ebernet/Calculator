@@ -110,12 +110,12 @@
 }
 
 
-- (CGFloat)yForGraphView:(GraphView *)sender fromXValue:(CGFloat)x
+- (id)yForGraphView:(GraphView *)sender fromXValue:(CGFloat)x
 {
     // If there is no program, no need to do calculations. Retunr Not A Number.
     
-    if ([[self program] count] == 0) return NAN;
-    CGFloat returnVal = 0;
+    if ([[self program] count] == 0) return @"NAN";
+    id returnVal = @"NAN";
 
     // This allows me to alter the symbol for X without incurring problems
     NSString *variableName;
@@ -128,7 +128,7 @@
                                                     [NSNumber numberWithDouble:x], variableName, nil]];
     
     if ([returnedValue isKindOfClass:[NSNumber class]]) {
-        returnVal = [returnedValue doubleValue];
+        returnVal = returnedValue;
     }
     return returnVal;
 }
