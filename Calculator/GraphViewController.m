@@ -14,6 +14,8 @@
 @property (weak, nonatomic) IBOutlet GraphView *graphView;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (weak, nonatomic) IBOutlet UILabel *toolbarTitle;
+@property (weak, nonatomic) NSString *variableName;
+
 @end
 
 @implementation GraphViewController
@@ -22,6 +24,7 @@
 @synthesize program = _program;
 @synthesize splitViewBarButtonItem = _splitViewBarButtonItem;
 @synthesize toolbarTitle = _toolbarTitle;
+@synthesize variableName = _variableName;
 
 #define GRAPH_TITLE 9
 
@@ -60,7 +63,7 @@
 
 - (IBAction)togglePixels:(id)sender {
     if ([sender isKindOfClass:[UISwitch class]])
-        [self.graphView setDrawSegmented:[sender isOn]];
+        [self.graphView setDrawSegmented:![sender isOn]];
 }
 
 - (void)viewDidLoad
@@ -105,6 +108,15 @@
                 self.title = @"Graph";
             }
         }
+
+        
+        // This allows me to alter the symbol for X without incurring problems
+        if ([[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] count] > 0) {
+            self.variableName = [[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] objectAtIndex:0];
+        }
+
+        
+        
         [self.graphView setNeedsDisplay];
     }
 }
@@ -117,15 +129,10 @@
     if ([[self program] count] == 0) return @"NAN";
     id returnVal = @"NAN";
 
-    // This allows me to alter the symbol for X without incurring problems
-    NSString *variableName;
-    if ([[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] count] > 0) {
-        variableName = [[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] objectAtIndex:0];
-    }
     
     id returnedValue = [CalculatorBrain runProgram:[self program]
                                usingVariableValues:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                    [NSNumber numberWithDouble:x], variableName, nil]];
+                                                    [NSNumber numberWithDouble:x], self.variableName, nil]];
     
     if ([returnedValue isKindOfClass:[NSNumber class]]) {
         returnVal = returnedValue;

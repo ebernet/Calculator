@@ -66,7 +66,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
             if ([returnedValue isKindOfClass:[NSNumber class]]) {
                 yForPositiveX = [returnedValue doubleValue];
             } else {
-                continue;
+                yForPositiveX = 0;
             }
             if (abs(yForPositiveX) > maxY) maxY = abs(yForPositiveX);
             
@@ -74,7 +74,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
             if ([returnedValue isKindOfClass:[NSNumber class]]) {
                 yForNegativeX = [returnedValue doubleValue];
             } else {
-                continue;
+                yForNegativeX = 0;
             }
             if (abs(yForNegativeX) > maxY) maxY = abs(yForPositiveX);
             
@@ -88,7 +88,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
                 if ([returnedValue isKindOfClass:[NSNumber class]]) {
                     yForPositiveX = [returnedValue doubleValue];
                 } else {
-                    continue;
+                    yForPositiveX = 0;
                 }
 
                 if (abs(yForPositiveX) > maxY) maxY = abs(yForPositiveX);
@@ -97,7 +97,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
                 if ([returnedValue isKindOfClass:[NSNumber class]]) {
                     yForNegativeX = [returnedValue doubleValue];
                 } else {
-                    continue;
+                    yForNegativeX = 0;
                 }
                 if (abs(yForNegativeX) > maxY) maxY = abs(yForNegativeX);
             }
@@ -208,11 +208,16 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     }
 }
 
-//- (void)awakeFromNib
-//{
-//    [super awakeFromNib];
-//    [self setContentMode:UIViewContentModeRedraw];
-//}
+- (void)setup
+{
+    self.drawSegmented = NO;
+}
+
+- (void)awakeFromNib
+{
+    [super awakeFromNib];
+    [self setup];
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -234,14 +239,19 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGFloat screenScaling = [self contentScaleFactor];      // what are the actual pixel sizes?
     
+    // This is where we are at 0, 0 in screen point
+    
     CGFloat yOffset = self.graphOrigin.y;
     CGFloat xOffset = self.graphOrigin.x;
     
-    CGFloat startingXCoordinate = self.graphOrigin.x - self.bounds.size.width;
+    // Where we start
+    CGFloat startingXCoordinate = -xOffset;
     CGFloat endingXCoordinate = startingXCoordinate + self.bounds.size.width; // On screen coordinates
     
+    // In pixel coordinates
     CGFloat startingXValue = startingXCoordinate / self.scale;
     
+    // What the increment is, in points
     CGFloat xIncrement = 1/screenScaling;
     CGFloat xIncrementValue = 1/self.scale/screenScaling;
     
@@ -259,12 +269,16 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     BOOL drawnDiscontiguous = NO;
     
     
+    // Draw by pixels
     if (self.drawSegmented) {
         CGContextSetFillColorWithColor(context, [[UIColor blueColor] CGColor]);
         
-        for (CGFloat x = startingXCoordinate+1; x <= endingXCoordinate; x+=xIncrement) {
+        // iterate along x coordinates according to our scale
+        for (CGFloat x = startingXCoordinate; x <= endingXCoordinate; x+=xIncrement) {
+            // and pixel coordinates
             xValue += xIncrementValue;
             
+            // If the function does not evaluate to a real number, go to the next point/subpoint along the axis
             returnedValue = [self.dataSource yForGraphView:self fromXValue:xValue];
             if ([returnedValue isKindOfClass:[NSNumber class]]) {
                 yValue = [returnedValue doubleValue];
@@ -272,15 +286,16 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
                 continue;
             }
 
-            CGContextFillRect(context, CGRectMake(xOffset + (xValue*self.scale),yOffset-(yValue*self.scale),1,1));
+            // Once we have a valid point, draw it as a rectangle of 1 pixel
+            CGContextFillRect(context, CGRectMake( (xValue*self.scale) + xOffset,yOffset-(yValue*self.scale),xIncrement,xIncrement));
         }
-        
+    // Draw by line    
     } else {
         CGContextBeginPath(context);
         [[UIColor blueColor] setStroke];
 
         if ([returnedValue isKindOfClass:[NSNumber class]]) {
-            CGContextMoveToPoint(context, xOffset + (xValue*self.scale), yOffset-(yValue*self.scale));
+            CGContextMoveToPoint(context,  (xValue*self.scale) + xOffset, yOffset-(yValue*self.scale));
         } else {
             while (![returnedValue isKindOfClass:[NSNumber class]] && (xValue <= endingXCoordinate)) {
                 returnedValue = [self.dataSource yForGraphView:self fromXValue:xValue];
@@ -291,7 +306,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
             }
             yValue = [returnedValue doubleValue];
         
-            CGContextMoveToPoint(context, xOffset + (xValue*self.scale), yOffset-(yValue*self.scale));
+            CGContextMoveToPoint(context, (xValue*self.scale) + xOffset, yOffset-(yValue*self.scale));
        
         }
 
@@ -304,10 +319,11 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
                 yValue = [returnedValue doubleValue];
             } else if ([returnedValue isKindOfClass:[NSString class]]) {
                 if (!drawnDiscontiguous) {
-                    CGContextAddLineToPoint(context, xOffset + (oldXValue*self.scale), yOffset-(oldYValue*self.scale));
+                    CGContextAddLineToPoint(context,  (oldXValue*self.scale) + xOffset, yOffset-(oldYValue*self.scale));
                     drawnDiscontiguous = YES;
                 }
-                continue;
+                CGContextMoveToPoint(context, (xValue*self.scale) + xOffset, yOffset-(yValue*self.scale));
+               continue;
             }
 
 
@@ -315,7 +331,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
             oldXValue = xValue;
             oldYValue = yValue;
             
-            CGContextAddLineToPoint(context, xOffset + (xValue*self.scale), yOffset-(yValue*self.scale));
+            CGContextAddLineToPoint(context,  (xValue*self.scale) + xOffset, yOffset-(yValue*self.scale));
             
         }
         CGContextStrokePath(context);
