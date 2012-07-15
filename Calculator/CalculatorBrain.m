@@ -45,7 +45,7 @@
 + (id) ErrorSet {
     static NSSet * _errorSet = nil;
     if (!_errorSet)
-        _errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative",
+        _errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative",@"log of negative",
                                         @"Insufficient Operands",@"infinity",@"negative infinity",nil];
 	return _errorSet;
 }
@@ -295,7 +295,10 @@
                 } else if ([@"tan" isEqualToString:operation]) {
                     result = [NSNumber numberWithFloat:tan(operandVal)];
                 } else if ([@"log" isEqualToString:operation]) {
-                    result = [NSNumber numberWithFloat:log2(operandVal)];
+                    if (operandVal < 0)
+                        result = @"log of negative";
+                    else
+                        result = [NSNumber numberWithFloat:log2(operandVal)];
                 } else if ([@"±" isEqualToString:operation]) {                  // Weird bug where you can get -0
                     if (operandVal != 0)
                         result = [NSNumber numberWithFloat:-(operandVal)];
@@ -344,34 +347,31 @@
 // Changed to id return value for extra credit
 + (id)runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues
 {
-    if ([program count]) {
+    if ([program isKindOfClass:[NSArray class]]) {
         // We want to consume the program stack, so as we can do the recursion, so...
-        NSMutableArray *stack;
-        // If what was passed to us was aprogram, make a copy we can consume (mutableCopy achieves that)
-        if ([program isKindOfClass:[NSArray class]]) {
-            stack = [program mutableCopy];
-        }
-        if ([variableValues isKindOfClass:[NSDictionary class]]) {
-            if (variableValues) {
-                // what we do now is iterate through the stack, replacing all variables
-                // with their looked up values from the dictionary
-                for ( int i = 0;i < stack.count; i++) {
-                    id obj = [stack objectAtIndex:i]; 
-                    
-                    if ([obj isKindOfClass:[NSString class]] && ![self isOperation:obj]) {
-                        id value = [variableValues objectForKey:obj];         
-                        // If value is not an instance of NSNumber, set it to zero
-                        if (![value isKindOfClass:[NSNumber class]]) {
-                            value = [NSNumber numberWithInt:0];
-                        }
-                        // Replace program variable with value.
-                        [stack replaceObjectAtIndex:i withObject:value];
-                    }     
+        // Copy it...
+        NSMutableArray *stack = [program mutableCopy];
+        if ([program count])  {
+            if ([variableValues isKindOfClass:[NSDictionary class]]) {
+                if (variableValues) {
+                    // what we do now is iterate through the stack, replacing all variables
+                    // with their looked up values from the dictionary
+                    for ( int i = 0;i < stack.count; i++) {
+                        id obj = [stack objectAtIndex:i]; 
+                        
+                        if ([obj isKindOfClass:[NSString class]] && ![self isOperation:obj]) {
+                            id value = [variableValues objectForKey:obj];         
+                            // If value is not an instance of NSNumber, set it to zero
+                            if (![value isKindOfClass:[NSNumber class]]) {
+                                value = [NSNumber numberWithInt:0];
+                            }
+                            // Replace program variable with value.
+                            [stack replaceObjectAtIndex:i withObject:value];
+                        }     
+                    }
                 }
             }
-        }
-        // If we have anything sitting on the stack, return it, otherwise we have cleared the brain and we should return 0
-        if (stack.count > 0) {
+            // If we have anything sitting on the stack, return it, otherwise we have cleared the brain and we should return 0
             return [self popOperandOffStack:stack];
         }
     }
@@ -408,6 +408,5 @@
 {
     // Clear everything on the stack
     [self.programStack removeAllObjects];
-    self.programStack = nil; // Not really necessary, but cleaner
 }
 @end
