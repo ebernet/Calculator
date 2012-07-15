@@ -18,6 +18,37 @@
 @synthesize programStack = _programStack;
 
 
++ (id) OperationSet {
+    static NSSet * _operationSet = nil;
+    if (!_operationSet)
+		_operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"tan",@"√",@"×",@"÷",@"+",@"−",@"π",@"±",@"e",@"log",nil];
+	return _operationSet;
+}
++ (id) SingleOpSet {
+    static NSSet * _singleOpSet = nil;
+    if (!_singleOpSet)
+        _singleOpSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"tan",@"log",@"√",nil];
+	return _singleOpSet;
+}
++ (id) DoubleOpSet {
+    static NSSet * _doubleOpSet = nil;
+    if (!_doubleOpSet)
+        _doubleOpSet = [[NSSet alloc] initWithObjects:@"×",@"÷",@"+",@"−",nil];
+	return _doubleOpSet;
+}
++ (id) NoOpSet {
+    static NSSet * _noOpSet = nil;
+    if (!_noOpSet)
+        _noOpSet = [[NSSet alloc] initWithObjects:@"π",@"e",nil];
+	return _noOpSet;
+}
++ (id) ErrorSet {
+    static NSSet * _errorSet = nil;
+    if (!_errorSet)
+        _errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative",@"Insufficient Operands",nil];
+	return _errorSet;
+}
+
 #pragma mark setters and getters
 
 - (NSMutableArray *)programStack
@@ -41,33 +72,27 @@
 
 + (BOOL)isOperation:(NSString *)operation
 {
-    // This is expensive. Can I make it a constant?
-    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"tan",@"√",@"×",@"÷",@"+",@"−",@"π",@"±",@"e",@"log",nil];
-    return [operationSet containsObject:operation];
+    return [[self OperationSet] containsObject:operation];
 }
 
 + (BOOL)isSingleOpOperation:(NSString *)operation
 {
-    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"tan",@"√",@"log",@"±",nil];
-    return [operationSet containsObject:operation];
+    return [[self SingleOpSet] containsObject:operation];
 }
 
 + (BOOL)isDoubleOpOperation:(NSString *)operation
 {
-    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"×",@"÷",@"+",@"−",nil];
-    return [operationSet containsObject:operation];
+    return [[self DoubleOpSet] containsObject:operation];
 }
 
 + (BOOL)isNoOpOperation:(NSString *)operation
 {
-    NSSet *operationSet = [[NSSet alloc] initWithObjects:@"π",@"e",nil];
-    return [operationSet containsObject:operation];
+    return [[self NoOpSet] containsObject:operation];
 }
 
 + (BOOL)isErrorCondition:(NSString *)topOfStack
 {
-    NSSet *errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative",@"Insufficient Operands", nil];
-    return [errorSet containsObject:topOfStack];
+    return [[self ErrorSet] containsObject:topOfStack];
 }
 
 #pragma mark stack manipulations

@@ -9,15 +9,19 @@
 #import "GraphView.h"
 #import "AxesDrawer.h"
 
-@implementation GraphView
+@interface GraphView ()
+@end
 
+@implementation GraphView
 
 @synthesize scale = _scale;
 @synthesize graphOrigin = _graphOrigin;
 @synthesize dataSource = _dataSource;
 @synthesize drawSegmented = _drawSegmented;
 
-#define DEFAULT_SCALE 15.00 // default scale goes -10 to 10 in portrait view
+// default scale goes -10 to 10 in portrait view
+#define DEFAULT_SCALE 15.00 
+#define DEFAULT_PAN_RATE 1
 
 NSString * const GraphingCalculatorScalePrefKey = @"GraphingCalculatorScalePrefKey";
 NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPrefKey";
@@ -53,7 +57,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     // do it over points
     CGFloat incrementValue;
     
-    while (maxY < (maxYPossible /2)) {
+    while (maxY < (maxYPossible /3)) {
         incrementValue = (maxX - minX)/self.bounds.size.width;
         for (CGFloat x = minX; x <= maxX; x+= incrementValue) {
             returnedValue = [self.dataSource yForGraphView:self fromXValue:x];
@@ -69,7 +73,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
         if (maxY == 0) return DEFAULT_SCALE; // On iPad, we display the graph before any calculation, so be sure to set it
         // to the default value otherwise you get stuck here. Also if all your graph is invaild (all values along axis
         // return NAN
-        if (maxY < (maxYPossible /2)) {
+        if (maxY < (maxYPossible /3)) {
             theScale *=2;
             maxX = self.bounds.size.width/theScale/2;
             minX = -maxX;
@@ -146,7 +150,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
         CGPoint translation = [gesture translationInView:self];
         CGFloat currentX = self.graphOrigin.x;
         CGFloat currentY = self.graphOrigin.y;
-        self.graphOrigin = CGPointMake(currentX + (translation.x / 1), currentY + (translation.y / 1));
+        self.graphOrigin = CGPointMake(currentX + (translation.x / DEFAULT_PAN_RATE), currentY + (translation.y / DEFAULT_PAN_RATE));
         [gesture setTranslation:CGPointZero inView:self];
         // Set this here because a default is not created until AFTER we manipulate it ourselves
         [[NSUserDefaults standardUserDefaults] setObject:NSStringFromCGPoint(self.graphOrigin) forKey:GraphingCalculatorOriginPrefKey];
@@ -181,6 +185,12 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     }
 }
 
+- (void)resetScale
+{
+    self.scale = [self calculateDefaultScale];
+    self.graphOrigin = CGPointMake(self.bounds.origin.x + self.bounds.size.width/2, self.bounds.origin.y + self.bounds.size.height/2);;
+}
+
 - (void)setup
 {
     self.drawSegmented = NO;
@@ -204,8 +214,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
 - (void)drawRect:(CGRect)rect
 {
     // Drawing code
-    
-    
+        
     [AxesDrawer drawAxesInRect:self.bounds originAtPoint:self.graphOrigin scale:[self scale]];
     
     

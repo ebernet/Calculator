@@ -17,6 +17,7 @@
 @interface GraphView : UIView
 
 - (void)loadDefaults;
+- (void)resetScale;
 
 @property (nonatomic) CGFloat scale; // this is the scale that the graph will show
 @property (nonatomic) CGPoint graphOrigin; // this is the origin of the graph

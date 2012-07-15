@@ -12,5 +12,6 @@
 @interface GraphViewController : UIViewController <SplitViewBarButtonItemPresenter>
 
 @property (nonatomic, strong) id program;
+- (IBAction)resetScale;
 
 @end

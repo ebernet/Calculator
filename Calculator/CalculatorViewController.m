@@ -17,6 +17,7 @@
 @property (nonatomic, strong) CalculatorBrain *brain;
 @property (nonatomic) SystemSoundID buttonClick;                        // We want a new system sound for clicking
 @property (nonatomic, strong) NSDictionary *testVariableValues;
+@property (nonatomic) BOOL shouldResetScale;
 @end
 
 @implementation CalculatorViewController
@@ -28,6 +29,7 @@
 @synthesize brain = _brain;
 @synthesize testVariableValues = _testVariableValues;
 @synthesize buttonClick;
+@synthesize shouldResetScale =_shouldResetScale;
 
 #define GRAPH_BUTTON_TAG 10
 
@@ -230,6 +232,7 @@
     if (self.splitViewController) {
         if ([self.splitViewController respondsToSelector:@selector(presentsWithGesture)]) {
             self.splitViewController.presentsWithGesture = NO;
+            self.shouldResetScale = NO;
         }
     }
 }
@@ -263,8 +266,16 @@
 - (IBAction)updateGraph
 {
     if ([self splitViewGraphViewController]) {
+        if (self.shouldResetScale) {
+            [[self splitViewGraphViewController] resetScale];
+            self.shouldResetScale = NO;
+        }
         [[self splitViewGraphViewController] setProgram:[self.brain program]];
     }
+}
+- (IBAction)resetScale {
+    self.shouldResetScale = YES;
+    [self updateGraph];
 }
 
 - (void)viewWillLayoutSubviews

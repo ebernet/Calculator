@@ -15,7 +15,7 @@
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (weak, nonatomic) IBOutlet UILabel *toolbarTitle;
 @property (weak, nonatomic) NSString *variableName;
-
+@property (weak, nonatomic) NSString *simplifiedProgram;
 @end
 
 @implementation GraphViewController
@@ -25,6 +25,7 @@
 @synthesize splitViewBarButtonItem = _splitViewBarButtonItem;
 @synthesize toolbarTitle = _toolbarTitle;
 @synthesize variableName = _variableName;
+@synthesize simplifiedProgram = _simplifiedProgram;
 
 #define GRAPH_TITLE 9
 
@@ -100,6 +101,8 @@
                 } else {
                     self.title = [NSString stringWithFormat:@"Y = %@",descriptionOfProgram];
                 }
+                // Program without the Y
+                self.simplifiedProgram = descriptionOfProgram;
             }
         } else {  // We had no program, or it was not a string
             if (self.splitViewController) {
@@ -116,7 +119,6 @@
         }
 
         
-        
         [self.graphView setNeedsDisplay];
     }
 }
@@ -129,7 +131,6 @@
     if ([[self program] count] == 0) return @"NOPROGRAM";
     id returnVal = @"NAN";
 
-    
     id returnedValue = [CalculatorBrain runProgram:[self program]
                                usingVariableValues:[NSDictionary dictionaryWithObjectsAndKeys:
                                                     [NSNumber numberWithDouble:x], self.variableName, nil]];
@@ -140,6 +141,10 @@
     return returnVal;
 }
 
+- (IBAction)resetScale
+{
+    [self.graphView resetScale];
+}
 
 - (void)viewDidUnload
 {
