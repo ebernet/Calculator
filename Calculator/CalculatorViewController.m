@@ -204,7 +204,7 @@
     id resultOfProgram = [[self.brain class] runProgram:[self.brain program] usingVariableValues:self.testVariableValues];
     
     
-    // This ONLY applies to graphig calculator. Since we cannot set the value of X since it is variable, we want
+    // This ONLY applies to graphing calculator. Since we cannot set the value of X since it is variable, we want
     // to display in the display that the value is a variable and not evaluate it. Otherwise it
     // will evaluate based on 0
     
