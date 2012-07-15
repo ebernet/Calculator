@@ -541,7 +541,6 @@
                                 </state>
                                 <connections>
                                     <action selector="resetScale" destination="qT9-my-G8t" eventType="touchUpInside" id="FmD-MD-Jhv"/>
-                                    <action selector="updateGraph" destination="qT9-my-G8t" eventType="touchUpInside" id="Lz9-64-Phb"/>
                                 </connections>
                             </button>
                         </subviews>
