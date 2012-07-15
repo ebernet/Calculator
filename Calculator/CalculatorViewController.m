@@ -204,19 +204,20 @@
     id resultOfProgram = [[self.brain class] runProgram:[self.brain program] usingVariableValues:self.testVariableValues];
     
     
+    
+    if ([resultOfProgram isKindOfClass:[NSNumber class]]) {
+        self.display.text = [NSString stringWithFormat:@"%g",[resultOfProgram doubleValue]];
+    } else if ([resultOfProgram isKindOfClass:[NSString class]]) {
+        self.display.text = resultOfProgram;   // Can show error conditions
+    } else { // if the you undo the brain, nil will be returned, so put up a 0
+        self.display.text = @"0";
+    }
+
     // This ONLY applies to graphing calculator. Since we cannot set the value of X since it is variable, we want
     // to display in the display that the value is a variable and not evaluate it. Otherwise it
     // will evaluate based on 0
-    
-    if ([[[self.brain class] variablesUsedInProgram:[self.brain program]] count] == 0) {
-        if ([resultOfProgram isKindOfClass:[NSNumber class]]) {
-            self.display.text = [NSString stringWithFormat:@"%g",[resultOfProgram doubleValue]];
-        } else if ([resultOfProgram isKindOfClass:[NSString class]]) {
-            self.display.text = resultOfProgram;   // Can show error conditions
-        } else { // if the you undo the brain, nil will be returned, so put up a 0
-            self.display.text = @"0";
-        }
-    } else {
+    if (([[[self.brain class] variablesUsedInProgram:[self.brain program]] count] > 0) && 
+        !([resultOfProgram isKindOfClass:[NSString class]] && [[self.brain class] isErrorCondition:resultOfProgram])) {
         self.display.text = @"variables in use";
     }
 
