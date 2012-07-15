@@ -45,7 +45,8 @@
 + (id) ErrorSet {
     static NSSet * _errorSet = nil;
     if (!_errorSet)
-        _errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative",@"Insufficient Operands",nil];
+        _errorSet = [[NSSet alloc] initWithObjects:@"Divide By Zero",@"sqrt of negative",
+                                        @"Insufficient Operands",@"infinity",@"negative infinity",nil];
 	return _errorSet;
 }
 
@@ -308,6 +309,13 @@
                 }
             } else {
                 result = @"Insufficient Operands";
+            }
+            if ([result isKindOfClass:[NSNumber class]]) {
+                if ([result doubleValue] == INFINITY) {
+                    result = @"infinity";
+                } else  if ([result doubleValue] == -INFINITY) {
+                    result = @"negative infinity";
+                }
             }
         } else if ([self isNoOpOperation:operation]) {
             if ([@"π" isEqualToString:operation]) {
