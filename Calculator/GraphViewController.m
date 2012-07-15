@@ -126,7 +126,7 @@
 {
     // If there is no program, no need to do calculations. Retunr Not A Number.
     
-    if ([[self program] count] == 0) return @"NAN";
+    if ([[self program] count] == 0) return @"NOPROGRAM";
     id returnVal = @"NAN";
 
     

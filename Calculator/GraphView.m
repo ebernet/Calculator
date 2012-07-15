@@ -234,6 +234,9 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     id returnedValue = [self.dataSource yForGraphView:self fromXValue:xValue];
     if ([returnedValue isKindOfClass:[NSNumber class]]) {
          yValue = [returnedValue doubleValue];
+    } else if ([returnedValue isKindOfClass:[NSString class]]) {
+        // If there is no proram, don't waste time analyzing
+        if ([returnedValue isEqualToString:@"NOPROGRAM"]) return;
     }
     
     // Used in continuing lines when not possible to move to line
