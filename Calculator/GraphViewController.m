@@ -29,8 +29,6 @@
 @synthesize simplifiedProgram = _simplifiedProgram;
 @synthesize variableDictionary = _variableDictionary;
 
-#define GRAPH_TITLE 9
-
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
