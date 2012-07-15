@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *toolbarTitle;
 @property (weak, nonatomic) NSString *variableName;
 @property (weak, nonatomic) NSString *simplifiedProgram;
+@property (strong, nonatomic) NSMutableDictionary *variableDictionary;
 @end
 
 @implementation GraphViewController
@@ -26,6 +27,7 @@
 @synthesize toolbarTitle = _toolbarTitle;
 @synthesize variableName = _variableName;
 @synthesize simplifiedProgram = _simplifiedProgram;
+@synthesize variableDictionary = _variableDictionary;
 
 #define GRAPH_TITLE 9
 
@@ -48,6 +50,13 @@
         self.toolbar.items = toolBarItems;
         _splitViewBarButtonItem = splitViewBarButtonItem;
     }
+}
+
+- (NSMutableDictionary *)variableDictionary
+{
+    if (!_variableDictionary)
+        _variableDictionary = [[NSMutableDictionary alloc] init];
+    return _variableDictionary;
 }
 
 - (void)setGraphView:(GraphView *)graphView
@@ -116,6 +125,7 @@
         // This allows me to alter the symbol for X without incurring problems
         if ([[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] count] > 0) {
             self.variableName = [[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] objectAtIndex:0];
+            [[self variableDictionary] setValue:0 forKey:self.variableName];
         }
 
         
@@ -131,9 +141,18 @@
     if ([[self program] count] == 0) return @"NOPROGRAM";
     id returnVal = @"NAN";
 
+    [[self variableDictionary] setValue:[NSNumber numberWithDouble:x] forKey:self.variableName];
+
     id returnedValue = [CalculatorBrain runProgram:[self program]
-                               usingVariableValues:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                    [NSNumber numberWithDouble:x], self.variableName, nil]];
+                               usingVariableValues:self.variableDictionary];
+    
+    // This shaves a ittle time off, by making the disctionary a mutable dictionary and changing the key value each
+    // time rather than recreating an new NSDictionary each time. At the time of reduction it was 6% of cycles,
+    // After it was at 3%
+    
+//    id returnedValue = [CalculatorBrain runProgram:[self program]
+//                               usingVariableValues:[NSDictionary dictionaryWithObjectsAndKeys:
+//                                                    [NSNumber numberWithDouble:x], self.variableName, nil]];
     
     if ([returnedValue isKindOfClass:[NSNumber class]]) {
         returnVal = returnedValue;
