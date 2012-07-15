@@ -146,15 +146,17 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
 
 - (void)pan:(UIPanGestureRecognizer *)gesture
 {
-    if ((gesture.state == UIGestureRecognizerStateChanged) || (gesture.state == UIGestureRecognizerStateEnded)) {
+    if ((gesture.state == UIGestureRecognizerStateChanged)) {
         CGPoint translation = [gesture translationInView:self];
         CGFloat currentX = self.graphOrigin.x;
         CGFloat currentY = self.graphOrigin.y;
         self.graphOrigin = CGPointMake(currentX + (translation.x / DEFAULT_PAN_RATE), currentY + (translation.y / DEFAULT_PAN_RATE));
         [gesture setTranslation:CGPointZero inView:self];
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
         // Set this here because a default is not created until AFTER we manipulate it ourselves
         [[NSUserDefaults standardUserDefaults] setObject:NSStringFromCGPoint(self.graphOrigin) forKey:GraphingCalculatorOriginPrefKey];
         [[NSUserDefaults standardUserDefaults] synchronize];
+       
     }
 }
 
