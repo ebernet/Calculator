@@ -17,6 +17,7 @@
 // Changed operandStack to programStack. Allows for recursively having programs as operands...
 @synthesize programStack = _programStack;
 
+
 #pragma mark setters and getters
 
 - (NSMutableArray *)programStack
@@ -40,6 +41,7 @@
 
 + (BOOL)isOperation:(NSString *)operation
 {
+    // This is expensive. Can I make it a constant?
     NSSet *operationSet = [[NSSet alloc] initWithObjects:@"sin",@"cos",@"tan",@"√",@"×",@"÷",@"+",@"−",@"π",@"±",@"e",@"log",nil];
     return [operationSet containsObject:operation];
 }
