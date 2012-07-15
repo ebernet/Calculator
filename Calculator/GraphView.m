@@ -17,7 +17,7 @@
 @synthesize dataSource = _dataSource;
 @synthesize drawSegmented = _drawSegmented;
 
-#define DEFAULT_SCALE 1.00
+#define DEFAULT_SCALE 15.00 // default scale goes -10 to 10 in portrait view
 
 NSString * const GraphingCalculatorScalePrefKey = @"GraphingCalculatorScalePrefKey";
 NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPrefKey";
@@ -36,82 +36,54 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
     // Okay, first figure for 0 at origin, we have no scaling info, so we need to do the best
     // to send stuff down. First we see how tall it can be:
     
-    CGFloat yAxisHeightLimit = self.bounds.size.height / 2; // this can be used for positive or negative height
-    CGFloat xAxisWidthLimit = self.bounds.size.width / 2;   // Assuming our x value fed is going to go neg and pos as well
     
-    // We can use the delegated datasource to see our values, so we will be calling yForGraphView
+    id returnedValue;       // Used to handle errors for the delegate method
+    CGFloat yForX;          // The numerical value for it
+    CGFloat theScale = DEFAULT_SCALE;    // Starting scale. Initially, the scale will be the default
+    CGFloat maxX = self.bounds.size.width/theScale/2;     // Default given default size on iPhone
+    CGFloat minX = -maxX;      // Default given default size on iPhone
     
-    CGFloat yScale = .5;    // Starting scale. Initially, the scale will be 1 (after we multiply it by 2
-    CGFloat x;              // Used to iterate over x values
-    CGFloat yForPositiveX;  // results for poitive x values...
-    CGFloat yForNegativeX;  // and for negative x values
+    // Given X axis in portrait on iPhone is going -10 to 10, this is the default on Y axis
+    CGFloat maxYPossible = self.bounds.size.width / self.bounds.size.height * (maxX-minX);
+    // We also want to make sure the graph is visible, so if we never go over a small threshhold we need to decrease
+    // Ths scale to a lower height. If you never get to a tenth the height, then you should probably retry
+    CGFloat maxY = 0;
     
-    id returnedValue;       // Used to handle errors for the deleghate method
+    // This is the iteration value. For figuring out max/min, we don't really ned to iterate over pixels, sufficient to
+    // do it over points
+    CGFloat incrementValue;
     
-    CGFloat maxY = 0;       // what the current calculated maxY will be, allows us to continuously refine
-    CGFloat maxX = 0;       // Same for x - we need scales to be the same on x AND y axis
-    BOOL scaleUp = YES;     // Should our scale grow larger than 1, or should we be dividing the scale?
-    int heightToFigure = yAxisHeightLimit;  // What the new calcuated height should be, this is independent of the actual pixel height
-    int widthToFigure = xAxisWidthLimit;    // ...same for width
-    
-    
-    while (maxY < (heightToFigure - 5)) { // Some arbirary border from edge, will look nicer
-        while (ABS(x) < widthToFigure) {
-            scaleUp?(yScale *= 2):(yScale /= 2);
-            x = 1;
-            heightToFigure = (yAxisHeightLimit * yScale);
-            widthToFigure = (xAxisWidthLimit * yScale);
-            
+    while (maxY < (maxYPossible /2)) {
+        incrementValue = (maxX - minX)/self.bounds.size.width;
+        for (CGFloat x = minX; x <= maxX; x+= incrementValue) {
             returnedValue = [self.dataSource yForGraphView:self fromXValue:x];
             if ([returnedValue isKindOfClass:[NSNumber class]]) {
-                yForPositiveX = [returnedValue doubleValue];
+                yForX = [returnedValue doubleValue];
             } else {
-                yForPositiveX = 0;
+                yForX = 0;
             }
-            if (abs(yForPositiveX) > maxY) maxY = abs(yForPositiveX);
-            
-            returnedValue = [self.dataSource yForGraphView:self fromXValue:-x];
-            if ([returnedValue isKindOfClass:[NSNumber class]]) {
-                yForNegativeX = [returnedValue doubleValue];
-            } else {
-                yForNegativeX = 0;
-            }
-            if (abs(yForNegativeX) > maxY) maxY = abs(yForPositiveX);
-            
-            if (abs(yForNegativeX) > maxY) maxY = abs(yForNegativeX);
-            while ((abs(yForPositiveX) < heightToFigure) && 
-                   (abs(yForNegativeX) < heightToFigure) &&
-                   (x < widthToFigure)) {
-                x++;
-
-                returnedValue = [self.dataSource yForGraphView:self fromXValue:x];
-                if ([returnedValue isKindOfClass:[NSNumber class]]) {
-                    yForPositiveX = [returnedValue doubleValue];
-                } else {
-                    yForPositiveX = 0;
-                }
-
-                if (abs(yForPositiveX) > maxY) maxY = abs(yForPositiveX);
-
-                returnedValue = [self.dataSource yForGraphView:self fromXValue:-x];
-                if ([returnedValue isKindOfClass:[NSNumber class]]) {
-                    yForNegativeX = [returnedValue doubleValue];
-                } else {
-                    yForNegativeX = 0;
-                }
-                if (abs(yForNegativeX) > maxY) maxY = abs(yForNegativeX);
+            if ((yForX > maxY) || (yForX < -maxY)) {
+                maxY = ABS(yForX);
             }
         }
-        if (maxY < (widthToFigure/2)) {
-            // calculate the scale factor and get maximum x
-            scaleUp = NO;
-            maxX = x;
-            x = 0;
+        if (maxY == 0) return DEFAULT_SCALE; // On iPad, we display the graph before any calculation, so be sure to set it
+        // to the default value otherwise you get stuck here. Also if all your graph is invaild (all values along axis
+        // return NAN
+        if (maxY < (maxYPossible /2)) {
+            theScale *=2;
+            maxX = self.bounds.size.width/theScale/2;
+            minX = -maxX;
+            maxYPossible /= 2;
+        } else if (maxY > maxYPossible) {
+            theScale /=2;
+            maxX = self.bounds.size.width/theScale/2;
+            minX = -maxX;
+            maxYPossible *= 2;
+            maxY = 0;
         }
     }
-    CGFloat scaleToPassDown = (xAxisWidthLimit < yAxisHeightLimit)?(xAxisWidthLimit / maxX):(yAxisHeightLimit / maxX);
-    NSLog(@"Default Scale: %f", scaleToPassDown);
-    return scaleToPassDown;
+    NSLog(@"Default Scale: %f", theScale);
+    return theScale;
     
 }
 
@@ -201,6 +173,7 @@ NSString * const GraphingCalculatorOriginPrefKey = @"GraphingCalculatorOriginPre
         [self setGraphOrigin:CGPointFromString(defaultOriginString)];
     
     NSNumber *defaultScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:GraphingCalculatorScalePrefKey];
+
     if (defaultScaleValue) {
         [self setScale:[defaultScaleValue floatValue]];
     } else {

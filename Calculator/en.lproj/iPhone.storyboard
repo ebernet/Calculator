@@ -446,7 +446,7 @@
                             </view>
                             <switch opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" id="h6c-9f-Wyb">
                                 <rect key="frame" x="240" y="5" width="79" height="27"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <action selector="togglePixels:" destination="E5P-32-5s9" eventType="valueChanged" id="p0b-vm-M48"/>
                                 </connections>

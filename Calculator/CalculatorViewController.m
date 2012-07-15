@@ -227,9 +227,10 @@
 - (void)awakeFromNib
 {
     [super awakeFromNib];
-    if (self.splitViewGraphViewController != nil)
-    {
-        self.splitViewController.presentsWithGesture = NO;
+    if (self.splitViewController) {
+        if ([self.splitViewController respondsToSelector:@selector(presentsWithGesture)]) {
+            self.splitViewController.presentsWithGesture = NO;
+        }
     }
 }
 
