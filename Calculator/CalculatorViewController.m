@@ -235,7 +235,7 @@
     [super viewDidUnload];
 }
 
-#pragma mark Assignment 3 code
+#pragma mark - Assignment 3 code
 
 // Need to disable swipes to reveal calculator for iOS 5.1, interferes with pan
 - (void)awakeFromNib

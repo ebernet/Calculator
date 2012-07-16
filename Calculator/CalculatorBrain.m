@@ -50,7 +50,7 @@
 	return _errorSet;
 }
 
-#pragma mark setters and getters
+#pragma mark - setters and getters
 
 - (NSMutableArray *)programStack
 {
@@ -69,7 +69,7 @@
     return [self.programStack copy];
 }
 
-#pragma mark helper methods for checking for what is on the stack
+#pragma mark - helper methods for checking for what is on the stack
 
 + (BOOL)isOperation:(NSString *)operation
 {
@@ -96,7 +96,7 @@
     return [[self ErrorSet] containsObject:topOfStack];
 }
 
-#pragma mark stack manipulations
+#pragma mark - stack manipulations
 
 // undo is the old popOperand, but don't return anything
 - (void)undo
@@ -127,7 +127,7 @@
         [self.programStack addObject:variable];
 }
 
-#pragma mark Display brain methods
+#pragma mark - Display brain methods
 
 
 // Replaced my long code below with this code, that I got some help on
@@ -229,7 +229,7 @@
 
 }
 
-#pragma mark computational engine
+#pragma mark - computational engine
 
 // used for homework 2, part 1
 // This will recursively pop numbers or operations off the stack

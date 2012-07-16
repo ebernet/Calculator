@@ -17,6 +17,8 @@
 - (void)clearBrain; // The API for the clear button
 
 // Added in prep for homework 2
+// In favorites, comment below is added:
+//    "program is always guranteed to be a property list"
 @property (readonly) id program;
 
 // Recursive. Returns result of operation recursively. Could be an operation or a program

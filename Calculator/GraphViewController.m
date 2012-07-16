@@ -9,14 +9,18 @@
 #import "GraphViewController.h"
 #import "GraphView.h"
 #import "CalculatorBrain.h"
+// added for favorites
+#import "CalculatorProgramsTableViewController.h"
 
-@interface GraphViewController () <GraphViewDataSource>
+@interface GraphViewController () <GraphViewDataSource, CalculatorProgramsTableViewControllerDelegate>
+
 @property (weak, nonatomic) IBOutlet GraphView *graphView;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (weak, nonatomic) IBOutlet UILabel *toolbarTitle;
 @property (weak, nonatomic) NSString *variableName;
 @property (weak, nonatomic) NSString *simplifiedProgram;
 @property (strong, nonatomic) NSMutableDictionary *variableDictionary;
+@property (nonatomic, strong) UIPopoverController *popoverController; // This is for favorites prevent multiple popovers
 @end
 
 @implementation GraphViewController
@@ -28,6 +32,7 @@
 @synthesize variableName = _variableName;
 @synthesize simplifiedProgram = _simplifiedProgram;
 @synthesize variableDictionary = _variableDictionary;
+@synthesize popoverController;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -177,5 +182,58 @@
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 
+#pragma mark - Additions for favorites
+
+// Part of the favorites TableViewController
+#define FAVORITES_KEY @"GraphViewController.Favorites"
+
+- (IBAction)addToFavorites {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSMutableArray *favorites = [[defaults objectForKey:FAVORITES_KEY] mutableCopy];
+    if (!favorites) favorites = [NSMutableArray array];
+    [favorites addObject:self.program];
+    [defaults setObject:favorites forKey:FAVORITES_KEY];
+    [defaults synchronize];
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"Show Favorites Graph"]) {
+        if ([segue isKindOfClass:[UIStoryboardPopoverSegue class]]) {
+            UIStoryboardPopoverSegue *popoverSegue = (UIStoryboardPopoverSegue *)segue;
+            [self.popoverController dismissPopoverAnimated:YES];
+            self.popoverController = popoverSegue.popoverController; // might want to be popover's delegate and self.popoverController = nil on dismiss?
+        }
+        NSArray *programs = [[NSUserDefaults standardUserDefaults] objectForKey:FAVORITES_KEY];
+        [segue.destinationViewController setPrograms:programs];
+        [segue.destinationViewController setDelegate:self];
+    }
+}
+
+- (void)calculatorProgramsTableViewController:(CalculatorProgramsTableViewController *)sender choseProgram:(id)program
+{
+    self.program = program;
+    [self.navigationController popViewControllerAnimated:YES]; // added after lecture to support iPhone
+}
+
+// added after lecture to support deletion from the table
+// deletes the given program from NSUserDefaults (including duplicates)
+// then resets the Model of the sender
+
+- (void)calculatorProgramsTableViewController:(CalculatorProgramsTableViewController *)sender
+                               deletedProgram:(id)program
+{
+    NSString *deletedProgramDescription = [CalculatorBrain descriptionOfProgram:program];
+    NSMutableArray *favorites = [NSMutableArray array];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    for (id program in [defaults objectForKey:FAVORITES_KEY]) {
+        if (![[CalculatorBrain descriptionOfProgram:program] isEqualToString:deletedProgramDescription]) {
+            [favorites addObject:program];
+        }
+    }
+    [defaults setObject:favorites forKey:FAVORITES_KEY];
+    [defaults synchronize];
+    sender.programs = favorites;
+}
 
 @end
