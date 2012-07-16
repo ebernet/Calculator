@@ -27,6 +27,15 @@
     return self;
 }
 
+// Added to support updating of programs menu in place
+- (void)setPrograms:(NSArray *)programs
+{
+    if (_programs != programs) {
+        _programs = programs;
+        [self.tableView reloadData];
+    }
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -111,5 +120,6 @@
     id program = [self.programs objectAtIndex:indexPath.row];
     [self.delegate calculatorProgramsTableViewController:self choseProgram:program];
 }
+
 
 @end

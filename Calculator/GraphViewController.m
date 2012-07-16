@@ -234,6 +234,11 @@
     [defaults setObject:favorites forKey:FAVORITES_KEY];
     [defaults synchronize];
     sender.programs = favorites;
+    // This will bring you back to the graph after you delete the last program
+    if ([favorites count] == 0) {
+        [self.navigationController popViewControllerAnimated:YES];
+        [popoverController dismissPopoverAnimated:YES];
+    }
 }
 
 @end

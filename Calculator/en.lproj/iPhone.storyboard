@@ -486,7 +486,6 @@
                                 </state>
                                 <connections>
                                     <action selector="addToFavorites" destination="E5P-32-5s9" eventType="touchUpInside" id="xHs-an-pZp"/>
-                                    <action selector="resetScale" destination="E5P-32-5s9" eventType="touchUpInside" id="Iys-mZ-p67"/>
                                 </connections>
                             </button>
                         </subviews>
