@@ -191,9 +191,11 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSMutableArray *favorites = [[defaults objectForKey:FAVORITES_KEY] mutableCopy];
     if (!favorites) favorites = [NSMutableArray array];
-    [favorites addObject:self.program];
-    [defaults setObject:favorites forKey:FAVORITES_KEY];
-    [defaults synchronize];
+    if (![favorites containsObject:self.program]) {
+        [favorites addObject:self.program];
+        [defaults setObject:favorites forKey:FAVORITES_KEY];
+        [defaults synchronize];
+    }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
