@@ -50,10 +50,15 @@
 {
 	if (!pointsPerUnit) return;
 
-	if (((axisOrigin.x < bounds.origin.x) || (axisOrigin.x > bounds.origin.x+bounds.size.width)) &&
-		((axisOrigin.y < bounds.origin.y) || (axisOrigin.y > bounds.origin.y+bounds.size.height))) {
-		return;
-	}
+    //  Bug in this code. Must check if you are on the broder as well
+    //	if (((axisOrigin.x < bounds.origin.x) || (axisOrigin.x > bounds.origin.x+bounds.size.width)) &&
+    //		((axisOrigin.y < bounds.origin.y) || (axisOrigin.y > bounds.origin.y+bounds.size.height))) {
+    //		return;
+    //	}
+    if (((axisOrigin.x <= bounds.origin.x) || (axisOrigin.x >= bounds.origin.x+bounds.size.width)) &&
+        ((axisOrigin.y <= bounds.origin.y) || (axisOrigin.y >= bounds.origin.y+bounds.size.height))) {
+        return;
+    }
 
 	int unitsPerHashmark = MIN_PIXELS_PER_HASHMARK * 2 / pointsPerUnit;
 	if (!unitsPerHashmark) unitsPerHashmark = 1;
