@@ -62,12 +62,10 @@
     // Configure the cell...
     
     id program = [self.programs objectAtIndex:indexPath.row];
-    NSString * descriptionOfProgram = [CalculatorBrain descriptionOfProgram:program];
+    
     // Only show the valid program - we can take care of this when we place it there
-    NSRange commaLocation = [descriptionOfProgram rangeOfString:@","];
-    if (commaLocation.location != NSNotFound) {
-            descriptionOfProgram = [(NSString *)descriptionOfProgram substringToIndex:commaLocation.location];
-    }
+    NSArray *listPrograms = [[CalculatorBrain descriptionOfProgram:program] componentsSeparatedByString:@","];
+    NSString * descriptionOfProgram = [listPrograms objectAtIndex:0];
     
     cell.textLabel.text = [NSString stringWithFormat:@"Y = %@",descriptionOfProgram];
     

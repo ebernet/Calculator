@@ -92,7 +92,9 @@
     if (_program != program) {
         _program = program;
         
-        id descriptionOfProgram = [CalculatorBrain descriptionOfProgram:[self program]];
+        // remove the comma if more than one program on stack
+        NSArray *listPrograms = [[CalculatorBrain descriptionOfProgram:self.program] componentsSeparatedByString:@","];
+        id descriptionOfProgram = [listPrograms objectAtIndex:0];
         // Okay, the program description is valid...
         if ([descriptionOfProgram isKindOfClass:[NSString class]]) {
             // No program, just say "Graph"
@@ -103,11 +105,6 @@
                     self.title = @"Graph";
                 }
             } else {
-                // remove the comma if more than one program on stack
-                NSRange commaLocation = [descriptionOfProgram rangeOfString:@","];
-                if (commaLocation.location != NSNotFound)
-                    descriptionOfProgram = [(NSString *)descriptionOfProgram substringToIndex:commaLocation.location];
-
                 if (self.splitViewController) {
                     self.toolbarTitle.text = [NSString stringWithFormat:@"Y = %@",descriptionOfProgram];	
                 } else {
