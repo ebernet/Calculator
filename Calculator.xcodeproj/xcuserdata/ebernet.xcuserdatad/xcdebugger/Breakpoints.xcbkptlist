@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Calculator/CalculatorViewController.m"
-         timestampString = "364079548.806213"
+         timestampString = "364239256.180191"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "315"
-         endingLineNumber = "315">
+         startingLineNumber = "316"
+         endingLineNumber = "316">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "Yes"
@@ -38,6 +38,19 @@
          startingLineNumber = "167"
          endingLineNumber = "167"
          landmarkName = "-evaluateString:withSubstitutions:error:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Calculator/GraphView.m"
+         timestampString = "364240365.400051"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "177"
+         endingLineNumber = "177"
+         landmarkName = "-loadDefaults"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

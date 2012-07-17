@@ -252,6 +252,7 @@
 // Allow everything but upsidedown for the calculator
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
+    if (self.splitViewController) return YES;
     return (toInterfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 

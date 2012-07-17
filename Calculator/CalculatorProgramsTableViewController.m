@@ -39,6 +39,7 @@
 // Allow everything but upsidedown for the TableViewController
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
+    if (self.splitViewController) return YES;
     return (toInterfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 

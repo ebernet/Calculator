@@ -57,7 +57,8 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return YES;
+    if (self.splitViewController) return YES;
+    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 
 @end
