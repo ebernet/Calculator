@@ -126,6 +126,8 @@
         if ([[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] count] > 0) {
             self.variableName = [[[CalculatorBrain variablesUsedInProgram:[self program]] allObjects] objectAtIndex:0];
             [[self variableDictionary] setValue:0 forKey:self.variableName];
+        } else {
+            self.variableName = @"";
         }
 
         
@@ -136,9 +138,18 @@
 
 - (id)yForGraphView:(GraphView *)sender fromXValue:(CGFloat)x
 {
-    // If there is no program, no need to do calculations. Retunr Not A Number.
+    // If there is no program, no need to do calculations. Return Not A Number.
+    if ([[self program] isKindOfClass:[NSArray class]]) {
+        if ([[self program] count] == 0) return @"NOPROGRAM";
+    } else if ([[self program] isKindOfClass:[NSString class]]) {
+        if ([[self program] isEqualToString:@""]) return @"NOPROGRAM";
+    }
     
-    if ([[self program] count] == 0) return @"NOPROGRAM";
+    // If the program didn't contain a variable name. Instead of putting the X here I get the variables that may be in it out of
+    // The CalculatorBrain by querying the program for variables in use. This allows for multiple graphs you could draw on
+    // top of each other for different variables.
+    if (!(self.variableName) || [self.variableName isEqualToString:@""]) return @"NOPROGRAM";
+    
     id returnVal = @"NAN";
 
     [[self variableDictionary] setValue:[NSNumber numberWithDouble:x] forKey:self.variableName];
